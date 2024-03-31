@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package mail;
+
+service MailService {
+    rpc SendInvintationToApp (GetDataForm) returns (Empty);
+    rpc SendInvintationToEvent (GetDataForm) returns (Empty);
+}
+
+message GetDataForm {
+    string email = 1;
+    string eventName = 2;
+}
+
+message Empty {}

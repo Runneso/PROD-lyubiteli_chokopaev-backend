@@ -12,7 +12,7 @@ namespace Events.Libs.Utils
 
             string connection = $"Host={HOST};Port={PORT};Database={DATABASE};Username={USERNAME};Password={PASSWORD}";
 
-            return "Host=localhost;Port=5432;Database=cloud_storage_db;Username=admin;Password=root";
+            //return "Host=localhost;Port=5432;Database=cloud_storage_db;Username=admin;Password=root";
             return connection;
         }
     }

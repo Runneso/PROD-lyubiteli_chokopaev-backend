@@ -10,3 +10,6 @@ docker-compose.yml
 **/*.sln
 .DS_Store
 **/Files
+.env
+**/node_modules
+**/dist
