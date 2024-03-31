@@ -1,0 +1,8 @@
+mypy_cache
+.vscode
+.git
+.gitignore
+venv
+__pycache__
+Dockerfile
+.env.example
