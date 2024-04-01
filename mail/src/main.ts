@@ -3,6 +3,7 @@ import { MicroserviceOptions, Transport } from "@nestjs/microservices";
 import { AppModule } from "./app.module";
 import { resolve } from "path";
 import { ValidationPipe } from "./pipes/validation.pipe";
+import { config } from "dotenv";
 
 const PORT = process.env.MAIL_SERVICE_PORT;
 

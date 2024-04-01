@@ -11,8 +11,7 @@ namespace Events.Internal.Storage.Data
                 Name = "Олимпиада PROD",
                 Description = "Поздравляем с прохождением на заключительный этап! \nСкорее находи команду!",
                 StartAt = "2024-03-30 17:30",
-                EndAt = "2024-04-04 16:00",
-                OrganizerId = 1
+                EndAt = "2024-04-04 16:00"
             };
 
             Event candidate = context.events
@@ -22,9 +21,24 @@ namespace Events.Internal.Storage.Data
             if (candidate == null) 
             {
                 context.Add(ev);
-
-                context.SaveChanges();
             }
+
+            Organizer organizer = new Organizer
+            {
+                OrgId = 1,
+                EventId = 1
+            };
+
+            Organizer candidate1 = context.organizers
+                .Where(o => o.Id == 1)
+                .FirstOrDefault();
+
+            if (candidate1 == null) 
+            {
+                context.Add(organizer);
+            }
+
+            context.SaveChanges();
         }
     }
 }

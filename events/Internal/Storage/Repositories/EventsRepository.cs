@@ -20,7 +20,17 @@ namespace Events.Internal.Storage.Repositories
             _context.SaveChangesAsync();
         }
 
-        public async Task<Event> GetEvent(int id)
+        public  Event GetEvent(int id)
+        {
+            Event ev =  _context.events
+                .Where(e => e.Id == id)
+                
+                .FirstOrDefault();
+                
+            return ev;
+        }
+
+        public async Task<Event> GetEventAsync(int id) 
         {
             Event ev = await _context.events
                 .Where(e => e.Id == id)

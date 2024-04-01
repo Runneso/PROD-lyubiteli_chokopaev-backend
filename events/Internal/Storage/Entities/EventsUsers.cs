@@ -2,13 +2,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Events.Internal.Storage.Entities 
 {
-    public class Event 
+    public class EventsUsers 
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string StartAt { get; set; }
-        public string EndAt { get; set; }
+        public int EventId { get; set; }
+        public long? UserId { get; set; }
+        public bool IsJoin { get; set; }
+        public string? Tg { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using Events.Internal.Dto;
 using Events.Internal.Interafces;
 using Events.Internal.Storage.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Events.Internal.Controllers 
 {
     [ApiController]
-    [Route("events")]
+    [Route("api/v1/events")]
     public class EventsController : Controller
     {
 
@@ -39,17 +39,47 @@ namespace Events.Internal.Controllers
         }
 
         [HttpPost("{id}/upload")]
-        public async Task<IActionResult> UploadUsers(int id, [FromForm(Name = "members")] IFormFile file) 
+        public async Task<IActionResult> UploadUsers(int id, [FromForm] UploadMembersDto dto) 
         {
             try 
             {
-                _eventsService.UploadMembers(id, file);
+                var code = await _eventsService.UploadMembers(id, dto);
+
+                if (code == 0) 
+                    return new OkResult();
+
+                else if (code == 404)
+                    return new NotFoundResult();
+
+                else if (code == 403)
+                    return new ForbidResult();
+                else
+                    return new StatusCodeResult(500);
             }
-            catch (Exception err) 
+            catch (Exception ex) 
             {
                 return new StatusCodeResult(500);
-            } 
-            
+            }
+        }
+
+        [HttpPatch("{id}/join")]
+        public async Task<IActionResult> JoinToEvent(int id, [FromBody] JoinToEventDto dto) 
+        {
+            try 
+            {
+                var code = await _eventsService.JoinToEvent(id, dto);
+
+                if (code == 0)
+                    return new OkResult();
+
+                else if (code == 404)
+                    return new NotFoundResult();
+            }
+            catch (Exception ex) 
+            {
+                return new StatusCodeResult(500); 
+            }
+
             return new OkResult();
         }
     }

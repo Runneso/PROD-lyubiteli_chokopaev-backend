@@ -5,6 +5,10 @@ using Events.Internal.Storage.Data;
 using Events.Internal.Storage.Repositories;
 using Events.Libs.Utils;
 using Microsoft.EntityFrameworkCore;
+using Grpc.Core;
+using Microsoft.Extensions.Http;
+using Grpc.Net.Client;
+using MailClient;
 
 namespace Events.App
 {
@@ -25,6 +29,20 @@ namespace Events.App
 
             builder.Services.AddScoped<IEventsRepository, EventsRepository>();
 
+            builder.Services.AddScoped<IMailSerivice, Internal.Services.MailService>();
+
+            builder.Services.AddScoped<IEventsUsersRepository, EventsUsersRepository>();
+
+            builder.Services.AddScoped<IOrganizerRepositoy, OrganizerRepository>();
+
+
+            //Setup url.
+
+            var port = Environment.GetEnvironmentVariable("EVENTS_PORT");
+
+            port ??= "8000";
+
+            builder.WebHost.UseUrls($"http://127.0.0.1:{port}");
 
 
             //Setup database connection.
@@ -33,6 +51,11 @@ namespace Events.App
             {
                 options.UseNpgsql(Parser.GetConnectionString());
             });
+
+            //Iinit excel-files directory.
+
+            Directory.CreateDirectory(Path.Combine(".", "Files"));
+
 
             //Setup logger.
 
