@@ -1,11 +1,18 @@
+from settings import APIUrls, get_api_urls
+
 from typing import Optional, Any
 
 import aiohttp
 
-baseUrl = "https://2cllrl3g-8000.euw.devtunnels.ms/"
+api_urls: APIUrls = get_api_urls()
+baseUrl = api_urls.USERS_API_URL
 
 
 class UsersAPI:
+    """
+    Users API
+    """
+
     @staticmethod
     async def get_user(user_id: int) -> Optional[dict[str, Any]]:
         url = f"{baseUrl}/get_user/{user_id}"

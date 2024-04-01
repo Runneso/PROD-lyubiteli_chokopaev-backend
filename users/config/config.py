@@ -42,7 +42,7 @@ class Config:
 
 def load_config() -> Config:
     """
-    Create the app config class.
+    Create the app settings class.
     """
 
     env: Env = Env()

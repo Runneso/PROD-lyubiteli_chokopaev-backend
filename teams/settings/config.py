@@ -14,6 +14,15 @@ class Settings:
     POSTGRES_DB: str = getenv("POSTGRES_DB")
 
 
+class APIUrls:
+    USERS_API_URL: str = getenv("USERS_API_URL")
+
+
 @lru_cache
-def get_settings():
+def get_settings() -> Settings:
     return Settings()
+
+
+@lru_cache
+def get_api_urls() -> APIUrls:
+    return APIUrls()

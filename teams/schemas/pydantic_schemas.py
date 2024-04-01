@@ -66,7 +66,3 @@ class GetInvites(BaseModel):
 class AnswerInvite(BaseModel):
     invite_id: int
     isAccepted: bool
-
-# class JoinTeam(BaseModel):
-#     team_id: int
-#     user_id: int

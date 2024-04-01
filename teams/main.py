@@ -1,16 +1,21 @@
-from teams.db import CRUD, create_db, engine
-from teams.db.models import Teams, TeamsMembers, TeamsTags, TeamsInvites
-from teams.schemas import (Status,
-                           Team,
-                           DeleteTeam,
-                           CreateTeam,
-                           UpdateTeam,
-                           UpdateTag,
-                           InviteTeam,
-                           PossibleTeam,
-                           AnswerInvite,
-                           GetInvites)
-from teams.config import Settings, get_settings
+from db import (CRUD,
+                create_db,
+                engine,
+                Teams,
+                TeamsMembers,
+                TeamsTags,
+                TeamsInvites)
+from schemas import (Status,
+                     Team,
+                     DeleteTeam,
+                     CreateTeam,
+                     UpdateTeam,
+                     UpdateTag,
+                     InviteTeam,
+                     PossibleTeam,
+                     AnswerInvite,
+                     GetInvites)
+from settings import Settings, get_settings
 from services import UsersAPI
 
 from typing import List, Union, Optional
@@ -66,11 +71,20 @@ def get_tags(tags: List[TeamsTags]):
 
 @teams.get(prefix + "ping", status_code=200, response_model=Status)
 async def ping():
+    """
+    Ping handler
+    :return:
+    """
     return Status(status="OK")
 
 
 @teams.get(prefix + "teams", status_code=200, response_model=List[Team])
 async def get_teams(session=Depends(get_session)):
+    """
+    Handler for getting all teams
+    :param session:
+    :return:
+    """
     response = list()
     teams_array = await db.get_teams(session)
 
@@ -89,6 +103,12 @@ async def get_teams(session=Depends(get_session)):
 
 @teams.get(prefix + "teams/{event_id}", status_code=200, response_model=List[Team])
 async def get_teams_by_event(event_id: int, session=Depends(get_session)):
+    """
+    Handler for getting teams by event
+    :param event_id:
+    :param session:
+    :return:
+    """
     response = list()
     teams_array = await db.get_teams_by_event(session, event_id)
 
@@ -107,6 +127,12 @@ async def get_teams_by_event(event_id: int, session=Depends(get_session)):
 
 @teams.get(prefix + "team/{team_id}", status_code=200, response_model=Union[Team, Status])
 async def get_team(team_id: str, session=Depends(get_session)):
+    """
+    Handler for getting teams by id
+    :param team_id:
+    :param session:
+    :return:
+    """
     team = await db.get_team(session, int(team_id))
     if team is None:
         raise CustomException(status_code=404, reason="Данная команда не найдена.")
@@ -124,6 +150,11 @@ async def get_team(team_id: str, session=Depends(get_session)):
 
 @teams.post(prefix + "create", status_code=201)
 async def create_team(create_data: CreateTeam, session=Depends(get_session)):
+    """
+    Handler for creating teams
+    :param create_data:
+    :param session:
+    """
     try:
         team = Teams(
             name=create_data.name,
@@ -146,6 +177,11 @@ async def create_team(create_data: CreateTeam, session=Depends(get_session)):
 
 @teams.delete(prefix + "remove", status_code=204)
 async def delete_team(remove_data: DeleteTeam, session=Depends(get_session)):
+    """
+    Handler for deleting team
+    :param remove_data:
+    :param session:
+    """
     await db.delete_team(session, remove_data.team_id)
     await db.delete_team_tags(session, remove_data.team_id)
     await db.delete_team_members(session, remove_data.team_id)
@@ -153,6 +189,11 @@ async def delete_team(remove_data: DeleteTeam, session=Depends(get_session)):
 
 @teams.patch(prefix + "update", status_code=200)
 async def update_team(update_data: UpdateTeam, session=Depends(get_session)):
+    """
+    Handler for updating team
+    :param update_data:
+    :param session:
+    """
     if update_data.name is not None:
         await db.update_team_name(session, update_data.team_id, update_data.name)
     if update_data.description is not None:
@@ -165,6 +206,11 @@ async def update_team(update_data: UpdateTeam, session=Depends(get_session)):
 
 @teams.post(prefix + "createTag", status_code=201)
 async def add_tag(tag_data: UpdateTag, session=Depends(get_session)):
+    """
+    Hanlder for adding tag to team
+    :param tag_data:
+    :param session:
+    """
     tags = set(tag.tag for tag in await db.get_team_tags(session, tag_data.team_id))
 
     if tag_data.tag in tags:
@@ -176,6 +222,11 @@ async def add_tag(tag_data: UpdateTag, session=Depends(get_session)):
 
 @teams.delete(prefix + "deleteTag", status_code=204)
 async def delete_tag(tag_data: UpdateTag, session=Depends(get_session)):
+    """
+    Handler for deleting tag from team
+    :param tag_data:
+    :param session:
+    """
     tags = set(tag.tag for tag in await db.get_team_tags(session, tag_data.team_id))
 
     if tag_data.tag not in tags:
@@ -186,6 +237,11 @@ async def delete_tag(tag_data: UpdateTag, session=Depends(get_session)):
 
 @teams.post(prefix + "createInvite", status_code=201)
 async def send_invite(invite_data: InviteTeam, session=Depends(get_session)):
+    """
+    Hanlder for sending invites
+    :param invite_data:
+    :param session:
+    """
     curr_team = await db.get_team(session, invite_data.team_id)
     teams_array = await db.get_teams_by_event(session, curr_team.event_id)
 
@@ -216,6 +272,12 @@ async def send_invite(invite_data: InviteTeam, session=Depends(get_session)):
 
 @teams.get(prefix + "invites", status_code=200)
 async def get_invites(invite_data: GetInvites, session=Depends(get_session)):
+    """
+    Handler for getting invites
+    :param invite_data:
+    :param session:
+    :return:
+    """
     teams_array = await db.get_teams_by_event(session, invite_data.event_id)
     inTeam = "solo"
     team_id = None
@@ -242,6 +304,12 @@ async def get_invites(invite_data: GetInvites, session=Depends(get_session)):
 
 @teams.post(prefix + "answerInvite", status_code=201)
 async def answer_invite(answer_data: AnswerInvite, session=Depends(get_session)):
+    """
+    Handler for answering invites
+    :param answer_data:
+    :param session:
+    :return:
+    """
     invite = await db.get_invite(session, answer_data.invite_id)
     if answer_data.isAccepted:
         team = await db.get_team(session, invite.team_id)
@@ -258,6 +326,13 @@ async def answer_invite(answer_data: AnswerInvite, session=Depends(get_session))
 @teams.get(prefix + "possibleTeams", status_code=200)
 async def get_possible_teams(possible_data: PossibleTeam, session=Depends(get_session),
                              offset: Optional[int] = Query(0)):
+    """
+    Hanlder for getting possible teams by user and event
+    :param possible_data:
+    :param session:
+    :param offset:
+    :return:
+    """
     response = list()
     teams_array = await db.get_teams_by_event(session, possible_data.event_id)
     for team in teams_array:
@@ -267,7 +342,7 @@ async def get_possible_teams(possible_data: PossibleTeam, session=Depends(get_se
                                   reason="Данный участник уже участвует в данном событии в составе другой команды.")
 
     user_data = await UsersAPI.get_user(possible_data.user_id)
-    teams_tags = {int(team.id): get_tags(await db.get_team_tags(session, team.id)) for team in teams_array}
+    teams_tags = {int(team.id): get_tags(list(await db.get_team_tags(session, team.id))) for team in teams_array}
     teams_array = sorted(await db.get_possible_teams(session, offset, possible_data.event_id, user_data["role"]),
                          key=lambda current_team: get_Levenshtein_distance(user_data["tags"],
                                                                            teams_tags[current_team.id]), reverse=True)
@@ -287,6 +362,12 @@ async def get_possible_teams(possible_data: PossibleTeam, session=Depends(get_se
 
 @teams.exception_handler(CustomException)
 async def custom_exception_handler(request: Request, exc: CustomException):
+    """
+    Exception hanlder for CustomException
+    :param request:
+    :param exc:
+    :return:
+    """
     return JSONResponse(status_code=exc.status_code,
                         content=jsonable_encoder(Status(status=exc.reason)))
 

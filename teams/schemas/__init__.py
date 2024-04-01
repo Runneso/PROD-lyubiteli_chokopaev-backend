@@ -1,2 +1,10 @@
-from .schemas import *
-
+from .pydantic_schemas import (Status,
+                               Team,
+                               CreateTeam,
+                               DeleteTeam,
+                               UpdateTeam,
+                               UpdateTag,
+                               InviteTeam,
+                               PossibleTeam,
+                               GetInvites,
+                               AnswerInvite)
