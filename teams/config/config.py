@@ -6,13 +6,12 @@ load_dotenv()
 
 
 class Settings:
-    SERVER_ADDRESS: str = getenv("SERVER_ADDRESS")
-    SERVER_PORT: int = int(getenv("SERVER_PORT"))
-    POSTGRES_USERNAME: str = getenv("POSTGRES_USERNAME")
+    POSTGRES_DRIVER: str = getenv("POSTGRES_DRIVER")
+    POSTGRES_USER: str = getenv("POSTGRES_USER")
     POSTGRES_PASSWORD: str = getenv("POSTGRES_PASSWORD")
     POSTGRES_HOST: str = getenv("POSTGRES_HOST")
     POSTGRES_PORT: str = getenv("POSTGRES_PORT")
-    POSTGRES_DATABASE: str = getenv("POSTGRES_DATABASE")
+    POSTGRES_DB: str = getenv("POSTGRES_DB")
 
 
 @lru_cache

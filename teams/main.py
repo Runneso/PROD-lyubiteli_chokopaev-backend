@@ -1,6 +1,15 @@
 from teams.db import CRUD, create_db, engine
 from teams.db.models import Teams, TeamsMembers, TeamsTags, TeamsInvites
-from teams.schemas import Status, Team, DeleteTeam, CreateTeam, UpdateTeam, UpdateTag, InviteTeam, PossibleTeam
+from teams.schemas import (Status,
+                           Team,
+                           DeleteTeam,
+                           CreateTeam,
+                           UpdateTeam,
+                           UpdateTag,
+                           InviteTeam,
+                           PossibleTeam,
+                           AnswerInvite,
+                           GetInvites)
 from teams.config import Settings, get_settings
 from services import UsersAPI
 
@@ -19,8 +28,6 @@ from rapidfuzz import fuzz
 async def lifespan(app: FastAPI):
     print("Startup")
     await create_db()
-    for router in []:
-        app.include_router(router)
     yield
     print("Shutdown")
 
@@ -50,7 +57,6 @@ async def get_session():
 def get_Levenshtein_distance(user_tags: List[str], team_tags: List[str]) -> float:
     user_tags = " ".join(user_tags).lower()
     team_tags = " ".join(team_tags).lower()
-    print(fuzz.token_sort_ratio(user_tags, team_tags))
     return fuzz.token_sort_ratio(user_tags, team_tags)
 
 
@@ -128,6 +134,12 @@ async def create_team(create_data: CreateTeam, session=Depends(get_session)):
             size=create_data.size
         )
         await db.create_team(session, team)
+        team = await db.get_team_by_name(session, create_data.name)
+        member = TeamsMembers(
+            user_id=create_data.author_id,
+            team_id=team.id
+        )
+        await db.create_member(session, member)
     except Exception as error:
         raise CustomException(status_code=409, reason="Команда с таким названием уже создана.")
 
@@ -172,51 +184,78 @@ async def delete_tag(tag_data: UpdateTag, session=Depends(get_session)):
     await db.delete_tag(session, tag_data.team_id, tag_data.tag)
 
 
-@teams.post(prefix + "sendInvite", status_code=201)
+@teams.post(prefix + "createInvite", status_code=201)
 async def send_invite(invite_data: InviteTeam, session=Depends(get_session)):
-    team = await db.get_team(session, invite_data.team_id)
-    teams_array = await db.get_teams_by_event(session, team.event_id)
+    curr_team = await db.get_team(session, invite_data.team_id)
+    teams_array = await db.get_teams_by_event(session, curr_team.event_id)
 
     for team in teams_array:
         if invite_data.user_id in set(
                 team_members.user_id for team_members in await db.get_team_members(session, team.id)):
             raise CustomException(status_code=409,
                                   reason="Данный участник уже участвует в данном событии в составе другой команды.")
+
+    length_members = len(await db.get_team_members(session, curr_team.id))
+    if length_members >= curr_team.size:
+        raise CustomException(status_code=403, reason="На данный момент команда укомплектована.")
+
     invite = TeamsInvites(user_id=invite_data.user_id,
                           team_id=invite_data.team_id,
                           from_user=invite_data.from_team)
     mirror_invite = await db.get_mirror_invite(session, invite)
 
-    if invite_data.from_team:
-        if mirror_invite is None:
-            # отправить инвайт человеку и уведомление о приглашении в команду
-            pass
-        else:
-            # добавить в команду
+    if mirror_invite is None:
+        await db.create_invite(session, invite)
     else:
-        if mirror_invite is None:
-            # отправить капитану команды инвайт и уведомить его
-            pass
-        else:
-            # добавить в команду
-            pass
+        member = TeamsMembers(user_id=invite_data.user_id,
+                              team_id=invite_data.team_id)
+        await db.create_member(session, member)
+        await db.delete_invite(session, invite)
+        await db.delete_invite(session, mirror_invite)
 
 
-# @teams.post(prefix + "join", status_code=201)
-# async def join_team(join_data: JoinTeam, session=Depends(get_session)):
-#     team = await db.get_team(session, join_data.team_id)
-#     event_teams = await db.get_teams_by_event(session, team.event_id)
-#     for team in event_teams:
-#         if int(join_data.user_id) in set(
-#                 team_members.user_id for team_members in await db.get_team_members(session, team.id)):
-#             raise CustomException(status_code=409,
-#                                   reason="Данный участник уже участвует в данном событии в составе другой команды.")
-#     join = TeamsMembers(user_id=join_data.user_id,
-#                         team_id=join_data.team_id)
-#     await db.join_team(session, join)
+@teams.get(prefix + "invites", status_code=200)
+async def get_invites(invite_data: GetInvites, session=Depends(get_session)):
+    teams_array = await db.get_teams_by_event(session, invite_data.event_id)
+    inTeam = "solo"
+    team_id = None
+    for team in teams_array:
+        if invite_data.user_id in set(
+                team_members.user_id for team_members in
+                await db.get_team_members(session, team.id)) and team.author_id == invite_data.user_id:
+            team_id = team.id
+            inTeam = "author"
+            break
+        elif invite_data.user_id in set(
+                team_members.user_id for team_members in await db.get_team_members(session, team.id)):
+            inTeam = "member"
+            break
+    match inTeam:
+        case "solo":
+            return await db.get_solo_invites(session, invite_data.user_id, invite_data.event_id)
+        case "authour":
+            return await db.get_author_invites(session, team_id, invite_data.event_id)
+        case "member":
+            raise CustomException(status_code=404,
+                                  reason="Вы состоите в команде, поэтому вы не можете просматривать приглашания.")
 
 
-@teams.get(prefix + "possibleTeams")
+@teams.post(prefix + "answerInvite", status_code=201)
+async def answer_invite(answer_data: AnswerInvite, session=Depends(get_session)):
+    invite = await db.get_invite(session, answer_data.invite_id)
+    if answer_data.isAccepted:
+        team = await db.get_team(session, invite.team_id)
+        length_members = len(list(await db.get_team_members(session, invite.team_id)))
+
+        if length_members >= team.size:
+            return CustomException(status_code=409, reason="На данный момент команда укомплектована.")
+
+        member = TeamsMembers(user_id=invite.user_id, team_id=invite.team_id)
+        await db.create_member(session, member)
+    await db.delete_invite(session, invite)
+
+
+@teams.get(prefix + "possibleTeams", status_code=200)
 async def get_possible_teams(possible_data: PossibleTeam, session=Depends(get_session),
                              offset: Optional[int] = Query(0)):
     response = list()
@@ -235,14 +274,14 @@ async def get_possible_teams(possible_data: PossibleTeam, session=Depends(get_se
     for team in teams_array:
         current_tags = list(team_tag.tag for team_tag in await db.get_team_tags(session, team.id))
         current_members = list(team_members.user_id for team_members in await db.get_team_members(session, team.id))
-        current_team = Team(
-            id=team.id, name=team.name,
-            author_id=team.author_id, event_id=team.event_id,
-            description=team.description, tags=current_tags,
-            members=current_members, need=team.need, size=team.size
-        )
-        response.append(current_team)
-
+        if len(current_members) < team.size:
+            current_team = Team(
+                id=team.id, name=team.name,
+                author_id=team.author_id, event_id=team.event_id,
+                description=team.description, tags=current_tags,
+                members=current_members, need=team.need, size=team.size
+            )
+            response.append(current_team)
     return response
 
 
@@ -253,4 +292,4 @@ async def custom_exception_handler(request: Request, exc: CustomException):
 
 
 if __name__ == "__main__":
-    uvicorn.run(teams, host=settings.SERVER_ADDRESS, port=settings.SERVER_PORT)
+    uvicorn.run(teams)

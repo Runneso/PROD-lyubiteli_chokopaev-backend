@@ -57,6 +57,16 @@ class PossibleTeam(BaseModel):
     user_id: int
     event_id: int
 
+
+class GetInvites(BaseModel):
+    user_id: int
+    event_id: int
+
+
+class AnswerInvite(BaseModel):
+    invite_id: int
+    isAccepted: bool
+
 # class JoinTeam(BaseModel):
 #     team_id: int
 #     user_id: int

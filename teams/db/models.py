@@ -39,7 +39,6 @@ class TeamsInvites(Base):
     team_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     from_team: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
-
 async def create_db() -> None:
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
