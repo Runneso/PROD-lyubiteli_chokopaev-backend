@@ -11,7 +11,7 @@
                     "users"
                 ],
                 "summary": "Create User",
-                "operationId": "create_user_users_create_user_post",
+                "operationId": "create_user_api_v1_users_create_user_post",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -52,12 +52,12 @@
                     "users"
                 ],
                 "summary": "Sign In",
-                "operationId": "sign_in_users_sign_in_post",
+                "operationId": "sign_in_api_v1_users_sign_in_post",
                 "requestBody": {
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/Body_sign_in_users_sign_in_post"
+                                "$ref": "#/components/schemas/Body_sign_in_api_v1_users_sign_in_post"
                             }
                         }
                     },
@@ -93,7 +93,7 @@
                     "users"
                 ],
                 "summary": "Get Me",
-                "operationId": "get_me_users_get_me_get",
+                "operationId": "get_me_api_v1_users_get_me_get",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
@@ -119,7 +119,7 @@
                     "users"
                 ],
                 "summary": "Get User",
-                "operationId": "get_user_users_get_user__user_id__get",
+                "operationId": "get_user_api_v1_users_get_user__user_id__get",
                 "parameters": [
                     {
                         "name": "user_id",
@@ -155,13 +155,98 @@
                 }
             }
         },
+        "/api/v1/users/get_user_by_tg/{tg_username}": {
+            "get": {
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get User By Tg",
+                "operationId": "get_user_by_tg_api_v1_users_get_user_by_tg__tg_username__get",
+                "parameters": [
+                    {
+                        "name": "tg_username",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Tg Username"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetUser"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/user_exists/{tg_username}": {
+            "get": {
+                "tags": [
+                    "users"
+                ],
+                "summary": "User Exist",
+                "operationId": "user_exist_api_v1_users_user_exists__tg_username__get",
+                "parameters": [
+                    {
+                        "name": "tg_username",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Tg Username"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "boolean",
+                                    "title": "Response User Exist Api V1 Users User Exists  Tg Username  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users/patch_me": {
             "patch": {
                 "tags": [
                     "users"
                 ],
                 "summary": "Patch Me",
-                "operationId": "patch_me_users_patch_me_patch",
+                "operationId": "patch_me_api_v1_users_patch_me_patch",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -207,7 +292,7 @@
                     "users"
                 ],
                 "summary": "Delete Me",
-                "operationId": "delete_me_users_delete_me_delete",
+                "operationId": "delete_me_api_v1_users_delete_me_delete",
                 "responses": {
                     "204": {
                         "description": "Successful Response"
@@ -223,7 +308,7 @@
     },
     "components": {
         "schemas": {
-            "Body_sign_in_users_sign_in_post": {
+            "Body_sign_in_api_v1_users_sign_in_post": {
                 "properties": {
                     "grant_type": {
                         "anyOf": [
@@ -278,7 +363,7 @@
                     "username",
                     "password"
                 ],
-                "title": "Body_sign_in_users_sign_in_post"
+                "title": "Body_sign_in_api_v1_users_sign_in_post"
             },
             "CreateUser": {
                 "properties": {

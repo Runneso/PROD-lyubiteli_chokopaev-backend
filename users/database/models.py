@@ -36,9 +36,9 @@ class User(Base):
 class Tag(Base):
     __tablename__ = "tags"
 
+    id = Column(BigInteger, unique=True, primary_key=True)
     user_id = Column(
         ForeignKey(User.id, ondelete="CASCADE"),
-        primary_key=True,
         nullable=False,
     )
     tag = Column(VARCHAR, nullable=False)

@@ -4,8 +4,8 @@ from jwskate import Jwt
 from cashews import Cache, cache
 from fastapi import status, HTTPException
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, update, delete, func, and_
 from fastapi.security import OAuth2PasswordRequestForm
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -61,9 +61,10 @@ class CRUD:
             await postgres.execute(select(User).filter(User.email == data.email))
         ).scalar_one_or_none()
         await cache.delete(f"user-{created_user.id}")
+        await cache.delete(f"user-{created_user.tg_username}-tg")
 
         for tag in tags:
-            postgres.add(Tag(created_user.id, tag))
+            postgres.add(Tag(user_id=created_user.id, tag=tag))
 
         claims = {
             "id": created_user.id,
@@ -110,18 +111,63 @@ class CRUD:
             return user.columns_to_dict()
 
     @classmethod
+    async def get_user_by_tg_db(cls, tg_username: str, postgres: AsyncSession) -> dict[str, str]:
+        cached = await cache.get(f"user-{tg_username}-tg")
+        if cached:
+            return cached
+        else:
+            user = (
+            await postgres.execute(select(User).filter(User.tg_username == tg_username))
+        ).scalar_one_or_none()
+
+        if not user:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+        await cache.set(f"user-{tg_username}-tg", user.columns_to_dict(), "90m")
+        return user.columns_to_dict()
+
+    @classmethod
     async def patch_user_db(cls, token: str, data: UpdateUser, postgres: AsyncSession):
         user = await cls.auth(token, postgres)
+        data_dict = data.model_dump()
         user_id = user["id"]
+        tg_user = user["tg_username"]
+        tags = data_dict.get("tags")
+
+        if tags:
+            del data_dict["tags"]
+            user_tags = [tag.tag for tag in (await postgres.execute(
+                select(Tag).filter(Tag.user_id == user["id"])
+            )).scalars().all()]
+
+            for tag in tags:
+                if tag not in user_tags:
+                    postgres.add(Tag(user_id=user["id"], tag=tag))
+
+            for tag in user_tags:
+                if tag not in tags:
+                    await postgres.execute(delete(Tag).filter(Tag.user_id == user["id"], Tag.tag == tag))
+
+            await postgres.commit()
+
         updated_items = {
-            key: value for key, value in data.model_dump().items() if value is not None
+            key: value for key, value in data_dict.items() if value is not None
         }
-        await postgres.execute(
-            update(User).filter(User.id == user_id).values(**updated_items)
-        )
-        await cache.delete(f"user-{user_id}")
-        await postgres.commit()
+
+        if updated_items:
+            try:
+                await postgres.execute(
+                    update(User).filter(User.id == user_id).values(**updated_items)
+                )
+                await postgres.commit()
+            except IntegrityError:
+                raise HTTPException(status.HTTP_409_CONFLICT, detail="User with this credentials already exists")
+
+            await cache.delete(f"user-{user_id}")
+            await cache.delete(f"user-{tg_user}-tg")
+
         result = await postgres.get(User, user_id)
+        tags = [tag.tag for tag in (await postgres.execute(select(Tag).filter(Tag.user_id == result.id))).scalars().all()]
+        result.__dict__["tags"] = tags
         return result
 
     @classmethod
@@ -129,4 +175,6 @@ class CRUD:
         user = await cls.auth(token, postgres)
         await postgres.execute(delete(User).filter(User.id == user["id"]))
         await cache.delete(f"user-{user["id"]}")
+        await cache.delete(f"user-{user["tg_username"]}-tg")
+        await cache.delete(f"user-{user["tg_username"]}-exists")
         await postgres.commit()

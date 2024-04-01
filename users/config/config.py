@@ -10,11 +10,9 @@ __all__ = ["Config", "load_config"]
 
 @dataclass
 class AppConfig:
-    key = Jwk.generate(alg="ES256")
-
     cache: Cache
-    private_key: Jwk
     public_key: Jwk
+    private_key: Jwk
 
 
 @dataclass
@@ -42,7 +40,7 @@ class Config:
 
 def load_config() -> Config:
     """
-    Create the app settings class.
+    Create the app config class.
     """
 
     env: Env = Env()
@@ -56,8 +54,8 @@ def load_config() -> Config:
     return Config(
         app=AppConfig(
             cache=cache,
-            private_key=AppConfig.key,
-            public_key=AppConfig.key.public_jwk(),
+            public_key=Jwk.from_json(env("PUBLIC_KEY")),
+            private_key=Jwk.from_json(env("PRIVATE_KEY")),
         ),
         postgres=PostgresConfig(
             driver=env("POSTGRES_DRIVER"),

@@ -144,7 +144,7 @@ services:
     networks:
       - olymp_network
       - teams_network
-    command: bash -c "alembic upgrade head & python main.py"
+    command: bash -c "python main.py"
     container_name: teams_olymp_dev
 
   teams_postgres:

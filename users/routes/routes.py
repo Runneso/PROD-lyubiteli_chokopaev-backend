@@ -10,7 +10,7 @@ from schemas import *
 
 
 router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/sign_in")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/sign_in")
 
 
 @router.post(
@@ -62,6 +62,19 @@ async def get_user(
     postgres: AsyncSession = Depends(get_async_session),
 ):
     result = await CRUD.get_user_db(user_id, postgres)
+    return result
+
+
+@router.get(
+    "/get_user_by_tg/{tg_username}",
+    status_code=status.HTTP_200_OK,
+    response_model=GetUser,
+)
+async def get_user_by_tg(
+    tg_username: str,
+    postgres: AsyncSession = Depends(get_async_session),
+):
+    result = await CRUD.get_user_by_tg_db(tg_username, postgres)
     return result
 
 
