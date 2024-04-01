@@ -21,9 +21,9 @@ namespace Gateway.App
 
             var port = Environment.GetEnvironmentVariable("GATEWAY_PORT");
 
-            port ??= "8000";
+            port ??= "80";
 
-            builder.WebHost.UseUrls($"http://127.0.0.1:{port}");
+            builder.WebHost.UseUrls($"http://+:{port}");
 
             //Setup logger.
 
