@@ -1,11 +1,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-<<<<<<< HEAD
 EXPOSE 80
-=======
-EXPOSE 8000
-EXPOSE 443
->>>>>>> 7fbd5a1 (Update events)
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src

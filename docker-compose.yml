@@ -85,7 +85,7 @@ services:
       context: ./events/
     restart: always
     expose:
-      - 8002:8000
+      - 8002:80
     env_file:
       - ./docker/.env
     environment:
