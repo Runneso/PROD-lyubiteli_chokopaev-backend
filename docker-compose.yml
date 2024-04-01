@@ -21,7 +21,7 @@ services:
       context: ./gateway/
     restart: always
     env_file:
-      - .env
+      - ./docker/.env
     depends_on:
       - users
       - events
@@ -29,7 +29,7 @@ services:
       - mail
     networks:
       - olymp_network
-    container_name: gateway_olymp_prod
+    container_name: gateway_olymp
 
   users:
     build:
@@ -38,7 +38,7 @@ services:
     expose:
       - 8001:8000
     env_file:
-      - .env
+      - ./docker/.env
     environment:
       - POSTGRES_DB=users
     depends_on:
@@ -48,21 +48,21 @@ services:
       - olymp_network
       - users_network
     command: bash -c "alembic upgrade head & python main.py"
-    container_name: users_olymp_prod
+    container_name: users_olymp
 
   users_postgres:
     image: postgres:alpine
     restart: always
     hostname: postgres
     env_file:
-      - .env
+      - ./docker/.env
     environment:
       - POSTGRES_DB=users
     volumes:
       - users_pgdata:/var/lib/postgresql/data/
     networks:
       - users_network
-    container_name: users_postgres_olymp_prod
+    container_name: users_postgres_olymp
 
   users_redis:
     image: redis:alpine
@@ -73,12 +73,12 @@ services:
     expose:
       - 6379
     env_file:
-      - .env
+      - ./docker/.env
     networks:
       - users_network
     volumes:
       - users_redis:/data
-    container_name: users_redis_olymp_prod
+    container_name: users_redis_olymp
 
   events:
     build:
@@ -87,7 +87,7 @@ services:
     expose:
       - 8002:8000
     env_file:
-      - .env
+      - ./docker/.env
     environment:
       - POSTGRES_DB=events
     depends_on:
@@ -96,21 +96,21 @@ services:
     networks:
       - olymp_network
       - events_network
-    container_name: events_olymp_prod
+    container_name: events_olymp
 
   events_postgres:
     image: postgres:alpine
     restart: always
     hostname: postgres
     env_file:
-      - .env
+      - ./docker/.env
     environment:
       - POSTGRES_DB=events
     networks:
       - events_network
     volumes:
       - events_pgdata:/var/lib/postgresql/data/
-    container_name: events_postgres_olymp_prod
+    container_name: events_postgres_olymp
 
   events_redis:
     image: redis:alpine
@@ -121,12 +121,12 @@ services:
     expose:
       - 6379
     env_file:
-      - .env
+      - ./docker/.env
     networks:
       - events_network
     volumes:
       - events_redis:/data
-    container_name: events_redis_olymp_prod
+    container_name: events_redis_olymp
 
   teams:
     build:
@@ -135,7 +135,7 @@ services:
     expose:
       - 8003:8000
     env_file:
-      - .env
+      - ./docker/.env
     environment:
       - POSTGRES_DB=teams
     depends_on:
@@ -145,21 +145,21 @@ services:
       - olymp_network
       - teams_network
     command: bash -c "python main.py"
-    container_name: teams_olymp_prod
+    container_name: teams_olymp
 
   teams_postgres:
     image: postgres:alpine
     restart: always
     hostname: postgres
     env_file:
-      - .env
+      - ./docker/.env
     environment:
       - POSTGRES_DB=teams
     networks:
       - teams_network
     volumes:
       - teams_pgdata:/var/lib/postgresql/data/
-    container_name: teams_postgres_olymp_prod
+    container_name: teams_postgres_olymp
 
   teams_redis:
     image: redis:alpine
@@ -170,24 +170,24 @@ services:
     expose:
       - 6379
     env_file:
-      - .env
+      - ./docker/.env
     networks:
       - teams_network
     volumes:
       - teams_redis:/data
-    container_name: teams_redis_olymp_prod
+    container_name: teams_redis_olymp
 
   mail:
     build:
       context: ./mail/
     restart: always
-    ports:
+    expose:
       - 8004:8000
     env_file:
-      - .env
+      - ./docker/.env
     networks:
       - olymp_network
-    container_name: mail_olymp_prod
+    container_name: mail_olymp
 
   nginx:
     image: nginx:stable-alpine
@@ -200,17 +200,7 @@ services:
     depends_on:
       - gateway
     volumes:
-      - ./docker/nginx/prod/:/etc/nginx/conf.d:ro
+      - ./docker/nginx/:/etc/nginx/conf.d:ro
     networks:
       - olymp_network
-    container_name: nginx_olymp_prod
-
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - ./docker/certbot/conf:/etc/letsencrypt:rw
-      - ./docker/certbot/www:/var/www/certbot:rw
-    command: certonly --webroot --webroot-path=/var/www/certbot/ --email <your_email> --agree-tos --no-eff-email -d <domain (example.com)> -d <domain (www.example.com)>
-    depends_on:
-      - nginx
-    container_name: certbot_olymp_prod
+    container_name: nginx_olymp

@@ -197,49 +197,6 @@
                 }
             }
         },
-        "/api/v1/users/user_exists/{tg_username}": {
-            "get": {
-                "tags": [
-                    "users"
-                ],
-                "summary": "User Exist",
-                "operationId": "user_exist_api_v1_users_user_exists__tg_username__get",
-                "parameters": [
-                    {
-                        "name": "tg_username",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "title": "Tg Username"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "boolean",
-                                    "title": "Response User Exist Api V1 Users User Exists  Tg Username  Get"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/users/patch_me": {
             "patch": {
                 "tags": [
@@ -442,8 +399,7 @@
                     "surname",
                     "email",
                     "password",
-                    "tg_username",
-                    "role"
+                    "tg_username"
                 ],
                 "title": "CreateUser"
             },

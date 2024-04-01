@@ -17,7 +17,7 @@ class CreateUser(BaseModel):
     photo: Optional[str] = None
     tg_username: str
     is_admin: bool = Field(default=False)
-    role: Optional[str]
+    role: Optional[str] = None
     tags: list[str] = []
 
 

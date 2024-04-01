@@ -3,7 +3,6 @@ mypy_cache/
 venv/
 __pycache__/
 .env
-docker-compose.yml
 **/bin
 **/obj
 **/Properties
