@@ -9,5 +9,6 @@ namespace Events.Internal.Interafces
         public void AddEvent(Event toCreate);
         public Event GetEvent(int id);
         public Task<Event> GetEventAsync(int id);
+        public Task<Event> GetEventByName(string name);
     }
 }

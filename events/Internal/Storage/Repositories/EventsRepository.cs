@@ -24,7 +24,6 @@ namespace Events.Internal.Storage.Repositories
         {
             Event ev =  _context.events
                 .Where(e => e.Id == id)
-                
                 .FirstOrDefault();
                 
             return ev;

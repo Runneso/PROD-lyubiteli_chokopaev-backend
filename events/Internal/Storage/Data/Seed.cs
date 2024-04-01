@@ -4,7 +4,7 @@ namespace Events.Internal.Storage.Data
 {
     public static class Seed 
     {
-        public static void Start(DatabaseContext context) 
+        public static async void Start(DatabaseContext context) 
         {
             Event ev = new Event
             {
@@ -36,6 +36,23 @@ namespace Events.Internal.Storage.Data
             if (candidate1 == null) 
             {
                 context.Add(organizer);
+            }
+
+            Template template = new Template
+            {
+                MinLen = 3,
+                MaxLen = 5,
+                Required = "backend",
+                EventId = 1
+            };
+
+            Template candidate2 = context.templates
+                .Where(t => t.EventId == 1)
+                .FirstOrDefault();
+
+            if (candidate2 == null) 
+            {
+                context.Add(template);
             }
 
             context.SaveChanges();

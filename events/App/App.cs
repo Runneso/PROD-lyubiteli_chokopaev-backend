@@ -19,7 +19,11 @@ namespace Events.App
 
             //Add controllers and swager gen.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                            .AddJsonOptions(options => 
+                            {
+                                options.JsonSerializerOptions.IgnoreNullValues = true;
+                            });
 
             builder.Services.AddEndpointsApiExplorer();
 
@@ -35,12 +39,14 @@ namespace Events.App
 
             builder.Services.AddScoped<IOrganizerRepositoy, OrganizerRepository>();
 
+            builder.Services.AddScoped<ITemplatesRepository, TemplatesRepository>();
+
 
             //Setup url.
 
             var port = Environment.GetEnvironmentVariable("EVENTS_PORT");
 
-            port ??= "8000";
+            port ??= "8080";
 
             builder.WebHost.UseUrls($"http://127.0.0.1:{port}");
 

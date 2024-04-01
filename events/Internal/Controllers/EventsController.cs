@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using Events.Internal.Dto;
 using Events.Internal.Interafces;
 using Events.Internal.Storage.Entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Events.Internal.Controllers 
@@ -20,7 +22,7 @@ namespace Events.Internal.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEvent(int id) 
         {
-            Event result;
+            EventDto result;
             try 
             {
                 result = await _eventsService.GetEvent(id);
@@ -30,12 +32,34 @@ namespace Events.Internal.Controllers
                 return new StatusCodeResult(500);
             }
 
-            if (result == null) 
+            if (result.Event == null) 
             {
                 return new NotFoundObjectResult("This evnet not found");
             }
 
             return new OkObjectResult(result);
+        }
+
+        [HttpPost("{id}/addorg")]
+        public async Task<IActionResult> AddOrganizer(int id, [FromBody] AddOganizerDto dto) 
+        {
+            try 
+            {
+                var code = await _eventsService.AddOrganizer(id, dto);
+
+                if (code == 0)
+                    return new OkResult();
+                else if (code == 404)
+                    return new NotFoundResult();
+                else if (code == 403)
+                    return new StatusCodeResult(403);
+                else
+                    return new StatusCodeResult(500);
+            }
+            catch (Exception ex) 
+            {
+                return new StatusCodeResult(500);
+            }
         }
 
         [HttpPost("{id}/upload")]
@@ -52,7 +76,7 @@ namespace Events.Internal.Controllers
                     return new NotFoundResult();
 
                 else if (code == 403)
-                    return new ForbidResult();
+                    return new StatusCodeResult(403);
                 else
                     return new StatusCodeResult(500);
             }
@@ -80,7 +104,42 @@ namespace Events.Internal.Controllers
                 return new StatusCodeResult(500); 
             }
 
-            return new OkResult();
+              return new OkResult();
+        }
+
+        [HttpPost("{id}/addtemp")]
+        public async Task<IActionResult> AddTemplate(int id, [FromBody] CreateTemplateDto dto) 
+        {
+            try 
+            {
+                var code = await _eventsService.CreateTemplate(id, dto);
+
+                if (code == 0)
+                    return new OkResult();
+                else if (code == 404)
+                    return new NotFoundResult();
+                else if (code == 403)
+                    return new StatusCodeResult(403);
+                else
+                    return new StatusCodeResult(500); 
+            }
+            catch (Exception ex) 
+            {
+                return new StatusCodeResult(500); 
+            }
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto dto) 
+        {
+            try 
+            {
+                
+            }
+            catch (Exception ex) 
+            {
+                return new StatusCodeResult(500);
+            }
         }
     }
 }

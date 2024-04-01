@@ -5,8 +5,11 @@ namespace Events.Internal.Interafces
 {
     public interface IEventsService 
     {
-        Task<Event> GetEvent(int id);
-        Task<int> UploadMembers(int id, UploadMembersDto dto);
+        Task<EventDto> GetEvent(int id);
+        Task<int> CreateEvent(CreateEventDto dto);
+        Task<int> UploadMembers(int id,  UploadMembersDto dto);
         Task<int> JoinToEvent(int eventId, JoinToEventDto dto);
+        Task<int> AddOrganizer(int eventId, AddOganizerDto dto);
+        Task<int> CreateTemplate(int eventId, CreateTemplateDto dto);
     }
 }

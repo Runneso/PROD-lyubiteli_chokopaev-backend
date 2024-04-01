@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240401130456_init")]
+    [Migration("20240401152843_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -96,6 +96,32 @@ namespace Events.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("organizers");
+                });
+
+            modelBuilder.Entity("Events.Internal.Storage.Entities.Template", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxLen")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MinLen")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Required")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("templates");
                 });
 #pragma warning restore 612, 618
         }

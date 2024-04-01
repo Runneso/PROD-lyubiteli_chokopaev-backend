@@ -13,5 +13,6 @@ namespace Events.Internal.Storage.Data
         public DbSet<Event> events { get; set; }
         public DbSet<EventsUsers> eventsUsers { get; set; }
         public DbSet<Organizer> organizers { get; set; }
+        public DbSet<Template> templates { get; set; }
     }
 }

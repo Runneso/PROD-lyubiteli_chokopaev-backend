@@ -16,28 +16,43 @@ namespace Events.Internal.Services
         private readonly IMailSerivice _mailSerivice;
         private readonly IEventsUsersRepository _pairRepository;
         private readonly IOrganizerRepositoy _organizerRepositoy;
+        private readonly ITemplatesRepository _templatesRepository;
         
         public EventsService(
             IEventsRepository eventsRepository,
             IMailSerivice mailSerivice,
             IEventsUsersRepository eventsUsersRepository,
-            IOrganizerRepositoy organizerRepositoy
+            IOrganizerRepositoy organizerRepositoy,
+            ITemplatesRepository templatesRepository
         ) 
         {
             _eventsRepository = eventsRepository;
             _mailSerivice = mailSerivice;
             _pairRepository = eventsUsersRepository;
             _organizerRepositoy = organizerRepositoy;
+            _templatesRepository = templatesRepository;
         }
 
-        public async Task<Event> GetEvent(int id) 
+        public async Task<EventDto> GetEvent(int id) 
         {
-            var result = await _eventsRepository.GetEventAsync(id);
+            var ev = await _eventsRepository.GetEventAsync(id);
+
+            var temp = await _templatesRepository.GetTemplate(id);
+
+            var result = new EventDto 
+            {
+                Event = ev
+            };
+
+            if (temp != null) 
+            {
+                result.TeamsTemplate = temp;
+            }
             
             return result;
         }
 
-        public async Task<int> UploadMembers(int id, UploadMembersDto dto)
+        public async Task<int> UploadMembers(int id,  UploadMembersDto dto)
         {
             var ev = _eventsRepository.GetEvent(id);
 
@@ -52,7 +67,7 @@ namespace Events.Internal.Services
 
             foreach (var organizer in organizers) 
             {
-                if (organizer.Id == dto.OrganizerId) 
+                if (organizer.OrgId == dto.OrganizerId) 
                 {
                     flag = true;
                     break;
@@ -60,7 +75,7 @@ namespace Events.Internal.Services
             }
 
             if (!flag)
-                return 403;
+                return 403; 
 
             string path = Path.Combine("Files", $"{Guid.NewGuid().ToString()}.xlsx");
             
@@ -75,7 +90,7 @@ namespace Events.Internal.Services
             for (int i = 1; i < worksheet.Cells.Rows.Count; i++) 
             {
                 object email = worksheet.Cells[i, 4].Value;
-                Console.WriteLine(email);
+
                 if (email != null) 
                 {
                     string tgUsername =  worksheet.Cells[i, 5].Value.ToString();
@@ -85,7 +100,6 @@ namespace Events.Internal.Services
                 {
                     continue;
                 }
-                Console.WriteLine(i);
             }
 
             return 0; 
@@ -161,5 +175,97 @@ namespace Events.Internal.Services
             return 0;
         }
 
+        public async Task<int> AddOrganizer(int eventId, AddOganizerDto dto)
+        {
+            var ev = await _eventsRepository.GetEventAsync(eventId);
+
+            if (ev == null)
+                return 404;
+
+            var organizers = await _organizerRepositoy.GetOrganizers(eventId);
+
+            bool flag = false;
+
+            foreach (var organizer in organizers) 
+            {
+                if (organizer.OrgId == dto.OrganizerId) 
+                {
+                    flag = true;
+                    break;
+                }
+            }
+
+            if (!flag)
+                return 403; 
+
+            var org = new Organizer
+            {
+                OrgId = dto.UserId,
+                EventId = eventId
+            };
+
+            await _organizerRepositoy.AddOrganizer(org);
+
+            return 0;
+        }
+
+        public async Task<int> CreateTemplate(int eventId, CreateTemplateDto dto)
+        {
+            var ev = await _eventsRepository.GetEventAsync(eventId);
+
+            if (ev == null)
+                return 404;
+
+            var organizers = await _organizerRepositoy.GetOrganizers(eventId);
+
+            bool flag = false;
+
+            foreach (var organizer in organizers) 
+            {
+                if (organizer.OrgId == dto.OrgId) 
+                {
+                    flag = true;
+                    break;
+                }
+            }
+
+            if (!flag)
+                return 403; 
+
+            var candidate = await _templatesRepository.GetTemplate(eventId);
+
+            if (candidate != null) 
+            {
+                await _templatesRepository.RmTemplate(candidate);
+            }
+
+            var template = new Template
+                {
+                    EventId = ev.Id,
+                    MinLen = dto.MinLen,
+                    MaxLen = dto.MaxLen,
+                    Required = string.Join(";", dto.Required)
+                };
+
+                await _templatesRepository.AddTemplate(template);
+
+            return 0;
+        }
+
+        public async Task<int> CreateEvent(CreateEventDto dto)
+        {
+            var candidate = await _eventsRepository.GetEventAsync()
+
+
+            var ev = new Event 
+            {
+                Name = dto.Name,
+                Description = dto.Description,
+                StartAt = dto.StartAt,
+                EndAt = dto.EndAt
+            };
+
+            return 0; 
+        }
     }
 }

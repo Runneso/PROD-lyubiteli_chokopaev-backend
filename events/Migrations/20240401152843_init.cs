@@ -56,6 +56,22 @@ namespace Events.Migrations
                 {
                     table.PrimaryKey("PK_organizers", x => x.Id);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "templates",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    EventId = table.Column<int>(type: "integer", nullable: false),
+                    MinLen = table.Column<int>(type: "integer", nullable: false),
+                    MaxLen = table.Column<int>(type: "integer", nullable: false),
+                    Required = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_templates", x => x.Id);
+                });
         }
 
         /// <inheritdoc />
@@ -69,6 +85,9 @@ namespace Events.Migrations
 
             migrationBuilder.DropTable(
                 name: "organizers");
+
+            migrationBuilder.DropTable(
+                name: "templates");
         }
     }
 }
