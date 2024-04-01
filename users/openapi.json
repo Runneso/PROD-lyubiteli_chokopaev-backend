@@ -5,7 +5,7 @@
         "version": "0.1.0"
     },
     "paths": {
-        "/users/create_user": {
+        "/api/v1/users/create_user": {
             "post": {
                 "tags": [
                     "users"
@@ -46,7 +46,7 @@
                 }
             }
         },
-        "/users/sign_in": {
+        "/api/v1/users/sign_in": {
             "post": {
                 "tags": [
                     "users"
@@ -87,7 +87,7 @@
                 }
             }
         },
-        "/users/get_me": {
+        "/api/v1/users/get_me": {
             "get": {
                 "tags": [
                     "users"
@@ -113,7 +113,7 @@
                 ]
             }
         },
-        "/users/get_user/{user_id}": {
+        "/api/v1/users/get_user/{user_id}": {
             "get": {
                 "tags": [
                     "users"
@@ -155,7 +155,7 @@
                 }
             }
         },
-        "/users/patch_me": {
+        "/api/v1/users/patch_me": {
             "patch": {
                 "tags": [
                     "users"
@@ -201,7 +201,7 @@
                 ]
             }
         },
-        "/users/delete_me": {
+        "/api/v1/users/delete_me": {
             "delete": {
                 "tags": [
                     "users"
@@ -600,7 +600,7 @@
                 "flows": {
                     "password": {
                         "scopes": {},
-                        "tokenUrl": "/users/sign_in"
+                        "tokenUrl": "/api/v1/users/sign_in"
                     }
                 }
             }

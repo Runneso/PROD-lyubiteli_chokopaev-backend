@@ -65,6 +65,6 @@ def load_config() -> Config:
             password=env("POSTGRES_PASSWORD"),
             host=env("POSTGRES_HOST"),
             port=int(env("POSTGRES_PORT")),
-            database="users",
+            database=env("POSTGRES_DB"),
         ),
     )

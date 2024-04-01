@@ -1,74 +1,193 @@
 version: '3.9'
 
 volumes:
-  pgdata:
-  redis:
+  users_pgdata:
+  users_redis:
+  events_pgdata:
+  events_redis:
+  teams_pgdata:
+  teams_redis:
+
+networks:
+  olymp_network:
+  users_network:
+  events_network:
+  teams_network:
 
 
 services:
   gateway:
     build:
-      context: ./teams/
+      context: ./gateway/
     restart: always
-    ports:
-      - 8000:8000
     env_file:
-      - docker/env/.env.dev
+      - .env
     depends_on:
-      - postgres
-      - redis
+      - users
+      - events
+      - teams
+      - mail
     networks:
       - olymp_network
-    command: bash -c ""
-    container_name: gateway_olymp
+    container_name: gateway_olymp_dev
 
   users:
     build:
       context: ./users/
     restart: always
-    ports:
+    expose:
       - 8001:8000
     env_file:
-      - docker/env/.env.dev
+      - .env
+    environment:
+      - POSTGRES_DB=users
     depends_on:
-      - postgres
-      - redis
+      - users_postgres
+      - users_redis
     networks:
       - olymp_network
-    command: bash -c "alembic upgrade head & python ./users/main.py"
-    container_name: users_olymp
+      - users_network
+    command: bash -c "alembic upgrade head & python main.py"
+    container_name: users_olymp_dev
+
+  users_postgres:
+    image: postgres:alpine
+    restart: always
+    hostname: postgres
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=users
+    volumes:
+      - users_pgdata:/var/lib/postgresql/data/
+    networks:
+      - users_network
+    container_name: users_postgres_olymp_dev
+
+  users_redis:
+    image: redis:alpine
+    restart: always
+    hostname: redis
+    command:
+      - redis-server
+    expose:
+      - 6379
+    env_file:
+      - .env
+    networks:
+      - users_network
+    volumes:
+      - users_redis:/data
+    container_name: users_redis_olymp_dev
 
   events:
     build:
       context: ./events/
     restart: always
-    ports:
+    expose:
       - 8002:8000
     env_file:
-      - docker/env/.env.dev
+      - .env
+    environment:
+      - POSTGRES_DB=events
     depends_on:
-      - postgres
-      - redis
+      - events_postgres
+      - events_redis
     networks:
       - olymp_network
-    command: bash -c "alembic upgrade head & python ./events/main.py"
-    container_name: events_olymp
+      - events_network
+    container_name: events_olymp_dev
+
+  events_postgres:
+    image: postgres:alpine
+    restart: always
+    hostname: postgres
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=events
+    networks:
+      - events_network
+    volumes:
+      - events_pgdata:/var/lib/postgresql/data/
+    container_name: events_postgres_olymp_dev
+
+  events_redis:
+    image: redis:alpine
+    restart: always
+    hostname: redis
+    command:
+      - redis-server
+    expose:
+      - 6379
+    env_file:
+      - .env
+    networks:
+      - events_network
+    volumes:
+      - events_redis:/data
+    container_name: events_redis_olymp_dev
 
   teams:
     build:
       context: ./teams/
     restart: always
-    ports:
+    expose:
       - 8003:8000
     env_file:
-      - docker/env/.env.dev
+      - .env
+    environment:
+      - POSTGRES_DB=teams
     depends_on:
-      - postgres
-      - redis
+      - teams_postgres
+      - teams_redis
     networks:
       - olymp_network
-    command: bash -c "alembic upgrade head & python ./teams/main.py"
-    container_name: teams_olymp
+      - teams_network
+    command: bash -c "alembic upgrade head & python main.py"
+    container_name: teams_olymp_dev
+
+  teams_postgres:
+    image: postgres:alpine
+    restart: always
+    hostname: postgres
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=teams
+    networks:
+      - teams_network
+    volumes:
+      - teams_pgdata:/var/lib/postgresql/data/
+    container_name: teams_postgres_olymp_dev
+
+  teams_redis:
+    image: redis:alpine
+    restart: always
+    hostname: redis
+    command:
+      - redis-server
+    expose:
+      - 6379
+    env_file:
+      - .env
+    networks:
+      - teams_network
+    volumes:
+      - teams_redis:/data
+    container_name: teams_redis_olymp_dev
+
+  mail:
+    build:
+      context: ./mail/
+    restart: always
+    expose:
+      - 8004:8000
+    env_file:
+      - .env
+    networks:
+      - olymp_network
+    container_name: mail_olymp_dev
 
   nginx:
     image: nginx:stable-alpine
@@ -76,32 +195,12 @@ services:
     working_dir: /app
     ports:
       - 80:80
-    volumes:
-      - ./docker/nginx/dev/:/etc/nginx/conf.d:ro
     links:
       - gateway
     depends_on:
       - gateway
-    container_name: nginx_olymp
-
-  postgres:
-    image: postgres:alpine
-    restart: always
-    env_file:
-      - docker/env/.env.dev
     volumes:
-      - pgdata:/var/lib/postgresql/data/
-    container_name: postgres_olymp
-
-  redis:
-    image: redis:alpine
-    restart: always
-    command:
-      - redis-server
-    ports:
-      - 6379:6379
-    env_file:
-      - docker/env/.env.dev
-    volumes:
-      - redis:/data
-    container_name: redis_olymp
+      - ./docker/nginx/dev/:/etc/nginx/conf.d:ro
+    networks:
+      - olymp_network
+    container_name: nginx_olymp_dev

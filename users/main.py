@@ -9,10 +9,10 @@ app = FastAPI()
 
 app.include_router(
     router,
-    prefix="/users",
+    prefix="/api/v1/users",
     tags=["users"],
 )
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app")
+    uvicorn.run(app)

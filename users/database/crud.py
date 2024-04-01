@@ -21,24 +21,27 @@ cache: Cache = config.app.cache
 class CRUD:
     @classmethod
     async def auth(cls, token: str, postgres: AsyncSession) -> dict[str, str]:
-        jwt = Jwt(token)
+        try:
+            jwt = Jwt(token)
 
-        if (
-            jwt.verify_signature(config.app.public_key, alg="ES256")
-            and not jwt.is_expired()
-        ):
-            cached = await cache.get(f"user-{jwt.id}")
-            if cached:
-                return cached
+            if (
+                jwt.verify_signature(config.app.public_key, alg="ES256")
+                and not jwt.is_expired()
+            ):
+                cached = await cache.get(f"user-{jwt.id}")
+                if cached:
+                    return cached
+                else:
+                    user = await postgres.get(User, jwt.id)
+
+                    if not user:
+                        raise HTTPException(
+                            status.HTTP_404_NOT_FOUND, detail="User not found"
+                        )
+                    return user.columns_to_dict()
             else:
-                user = await postgres.get(User, jwt.id)
-
-                if not user:
-                    raise HTTPException(
-                        status.HTTP_404_NOT_FOUND, detail="User not found"
-                    )
-                return user.columns_to_dict()
-        else:
+                raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Token is invalid")
+        except:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Token is invalid")
 
     @classmethod

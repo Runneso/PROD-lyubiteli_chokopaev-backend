@@ -19,11 +19,7 @@ namespace Gateway.App
 
             builder.Services.AddScoped<IUsersService, UsersService>();
 
-            var port = Environment.GetEnvironmentVariable("GATEWAY_PORT");
-
-            port ??= "8000";
-
-            builder.WebHost.UseUrls($"http://127.0.0.1:{port}");
+            builder.WebHost.UseUrls($"http://+:80");
 
             //Setup logger.
 
@@ -47,7 +43,7 @@ namespace Gateway.App
         public static WebApplication SetupMiddleware(this WebApplication app)
         {
             app.MapControllers();
-
+            app.MapGet("ping", () => "ok");
             return app;
         }
 
@@ -60,11 +56,10 @@ namespace Gateway.App
             catch (Exception err)
             {
                 app.Logger.LogError(err.Message);
-                
+
                 throw;
             }
         }
 
     }
 }
-

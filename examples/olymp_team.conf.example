@@ -1,5 +1,5 @@
 upstream gateway {
-    server gateway:8000;
+    server gateway:80;
 }
 
 server {

@@ -14,7 +14,7 @@ async function bootstrap(): Promise<void> {
             options: {
                 package: "mail",
                 protoPath: resolve(__dirname, "..", "src", "proto", "mail.proto"),
-                url: `127.0.0.1:${PORT}`,
+                url: `0.0.0.0:${PORT}`,
                 maxReceiveMessageLength: 1024 * 1024 * 1024 * 10,
                 maxSendMessageLength: 1024 * 1024 * 1024 * 10,
             },
