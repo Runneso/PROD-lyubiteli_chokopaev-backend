@@ -8,7 +8,7 @@ __pycache__/
 **/Properties
 **/*.sln
 .DS_Store
-**/Files
+events/Files
 .env
 **/node_modules
 **/dist
