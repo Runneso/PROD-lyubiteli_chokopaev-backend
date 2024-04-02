@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class ff : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,8 +19,11 @@ namespace Events.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
+                    ImagePath = table.Column<string>(type: "text", nullable: true),
                     StartAt = table.Column<string>(type: "text", nullable: false),
-                    EndAt = table.Column<string>(type: "text", nullable: false)
+                    EndAt = table.Column<string>(type: "text", nullable: false),
+                    MembersListPath = table.Column<string>(type: "text", nullable: true),
+                    ResultsPath = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

@@ -27,6 +27,8 @@ namespace Events.App
 
             builder.Services.AddEndpointsApiExplorer();
 
+            builder.Services.AddSwaggerGen();
+
             //Add all services.
 
             builder.Services.AddScoped<IEventsService, EventsService>();
@@ -41,14 +43,18 @@ namespace Events.App
 
             builder.Services.AddScoped<ITemplatesRepository, TemplatesRepository>();
 
+            builder.Services.AddScoped<IStatisticService, StatisticService>();
+
+            builder.Services.AddScoped<ITeamsService, TeamsService>();
+
 
             //Setup url.
 
             var port = Environment.GetEnvironmentVariable("EVENTS_PORT");
 
-            port ??= "8080";
+            port ??= "80";
 
-            builder.WebHost.UseUrls($"http://127.0.0.1:{port}");
+            builder.WebHost.UseUrls($"http://+:{port}");
 
 
             //Setup database connection.
@@ -96,6 +102,11 @@ namespace Events.App
                 Seed.Start(context);
             }
 
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
 
             return app;
         }

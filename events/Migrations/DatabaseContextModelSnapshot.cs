@@ -38,8 +38,17 @@ namespace Events.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MembersListPath")
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResultsPath")
                         .HasColumnType("text");
 
                     b.Property<string>("StartAt")

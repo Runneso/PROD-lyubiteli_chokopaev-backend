@@ -52,6 +52,20 @@ namespace Events.Internal.Services
             return result;
         }
 
+        public async Task<int> UploadResults(int id, UploadResultsDto dto) 
+        {
+            var ev = await _eventsRepository.GetEventAsync(id);
+
+            if (ev == null) 
+                return 404;
+
+            ev.ResultsPath = dto.ResultsPath;
+
+            await _eventsRepository.UpdateEvent(ev);
+
+            return 0;
+        }
+
         public async Task<int> UploadMembers(int id,  UploadMembersDto dto)
         {
             var ev = _eventsRepository.GetEvent(id);
@@ -101,6 +115,12 @@ namespace Events.Internal.Services
                     continue;
                 }
             }
+
+            ev.MembersListPath = dto.MembersPath;
+
+            await _eventsRepository.UpdateEvent(ev);
+
+            File.Delete(path);
 
             return 0; 
         }
@@ -254,8 +274,10 @@ namespace Events.Internal.Services
 
         public async Task<int> CreateEvent(CreateEventDto dto)
         {
-            var candidate = await _eventsRepository.GetEventAsync()
+            var candidate = await _eventsRepository.GetEventByName(dto.Name);
 
+            if (candidate != null)
+                return 409; 
 
             var ev = new Event 
             {
@@ -265,7 +287,43 @@ namespace Events.Internal.Services
                 EndAt = dto.EndAt
             };
 
+            if (dto.ImagePath != null)
+                ev.ImagePath = dto.ImagePath;
+
+            await _eventsRepository.AddEvent(ev);
+
+            var org = new Organizer 
+            {
+                EventId = ev.Id,
+                OrgId = dto.OrgId
+            };
+
+            await _organizerRepositoy.AddOrganizer(org);
+
+            if (dto.MaxLenTeam != null && dto.MinLenTeam != null && dto.Required != null) 
+            {
+                var temp = new Template
+                {
+                    EventId = ev.Id,
+                    MaxLen = (int)dto.MaxLenTeam,
+                    MinLen = (int)dto.MinLenTeam,
+                    Required = string.Join(";", dto.Required)
+                };
+
+                await _templatesRepository.AddTemplate(temp);
+            }
+
             return 0; 
+        }
+
+        public async Task<List<Event>> GetEvents(int? limit, int? offset) 
+        {
+            limit ??= 5;
+            offset ??= 0;
+
+            var result = await _eventsRepository.GetEvents((int)limit, (int)offset);
+
+            return result;
         }
     }
 }

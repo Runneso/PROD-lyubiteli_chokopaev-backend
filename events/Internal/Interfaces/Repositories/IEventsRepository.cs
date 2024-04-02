@@ -6,9 +6,11 @@ namespace Events.Internal.Interafces
 {
     public interface IEventsRepository 
     {
-        public void AddEvent(Event toCreate);
+        public Task<List<Event>> GetEvents(int limit, int offset);
+        public Task AddEvent(Event toCreate);
         public Event GetEvent(int id);
         public Task<Event> GetEventAsync(int id);
         public Task<Event> GetEventByName(string name);
+        public Task UpdateEvent(Event ev);
     }
 }

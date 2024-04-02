@@ -11,7 +11,7 @@ namespace Events.Libs.Utils
             var DATABASE = Environment.GetEnvironmentVariable("POSTGRES_DB");
 
             string connection = $"Host={HOST};Port={PORT};Database={DATABASE};Username={USER};Password={PASSWORD}";
-
+            
             return connection;
         }
     }

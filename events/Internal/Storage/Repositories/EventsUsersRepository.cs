@@ -14,6 +14,8 @@ namespace Events.Internal.Storage.Repositories
             _context = context;
         }
 
+        
+
         public async Task<EventsUsers> GetPair(long userId, int eventId)
         {
             var pair = await _context.eventsUsers
@@ -42,6 +44,15 @@ namespace Events.Internal.Storage.Repositories
         {
             _context.Update(pair);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<EventsUsers>> GetPairs(int eventId)
+        {
+            var pairs = await _context.eventsUsers
+                .Where(e => e.EventId == eventId)
+                .ToListAsync();
+
+            return pairs;
         }
     }
 }

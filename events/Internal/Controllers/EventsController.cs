@@ -19,6 +19,41 @@ namespace Events.Internal.Controllers
             _eventsService = eventsService;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetEvents([FromQuery] int? limit, [FromQuery] int? offset) 
+        {
+            try 
+            {
+                var result = await _eventsService.GetEvents(limit, offset);
+
+                return new JsonResult(result);
+            }
+            catch (Exception ex) 
+            {
+                return new StatusCodeResult(500);
+            }
+        }
+
+        [HttpPatch("{id}/addRes")]
+        public async Task<IActionResult> UploadResults(int id, [FromBody] UploadResultsDto dto) 
+        {
+            try 
+            {
+                var code = await _eventsService.UploadResults(id, dto);
+
+                if (code == 0)
+                    return new OkResult();
+                else if (code == 404)
+                    return new NotFoundResult();
+                else 
+                    return new StatusCodeResult(500);
+            }
+            catch (Exception ex) 
+            {
+                return new StatusCodeResult(500);
+            }
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEvent(int id) 
         {
@@ -37,7 +72,7 @@ namespace Events.Internal.Controllers
                 return new NotFoundObjectResult("This evnet not found");
             }
 
-            return new OkObjectResult(result);
+            return new JsonResult(result);
         }
 
         [HttpPost("{id}/addorg")]
@@ -134,7 +169,14 @@ namespace Events.Internal.Controllers
         {
             try 
             {
-                
+                var code = await _eventsService.CreateEvent(dto);
+
+                if (code == 0)
+                    return new OkResult();
+                else if (code == 409)
+                    return new ConflictResult();
+                else
+                    return new StatusCodeResult(500);
             }
             catch (Exception ex) 
             {

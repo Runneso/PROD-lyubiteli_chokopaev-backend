@@ -25,5 +25,14 @@ namespace Events.Internal.Services
 
             await client.SendInvintationToEventAsync(new GetDataForm { Email = email, EventName = eventName });
         }
+
+        public async Task SendAddedToTeam(string email, string teamName, string eventName) 
+        {
+            using var chanel = GrpcChannel.ForAddress($"http://{url}");
+
+            var client = new MailClient.MailService.MailServiceClient(chanel);
+
+            await client.SendAddedToTeamAsync(new ToTeam { Email = email, EventName = eventName, Team = teamName });
+        }
     }
 }

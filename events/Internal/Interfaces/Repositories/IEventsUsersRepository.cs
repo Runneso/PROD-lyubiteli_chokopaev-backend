@@ -8,5 +8,6 @@ namespace Events.Internal.Interafces
         public Task<EventsUsers> GetPairByTg(string tgUsername, int eventId);
         public Task AddPair(EventsUsers pair);
         public Task UpdatePair(EventsUsers pair);
+        public Task<List<EventsUsers>> GetPairs(int eventId);
     }
 }

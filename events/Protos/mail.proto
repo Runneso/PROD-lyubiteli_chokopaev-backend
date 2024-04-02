@@ -1,17 +1,24 @@
 syntax = "proto3";
 
-option csharp_namespace = "MailClient";
-
 package mail;
+
+option csharp_namespace = "MailClient";
 
 service MailService {
     rpc SendInvintationToApp (GetDataForm) returns (Empty);
     rpc SendInvintationToEvent (GetDataForm) returns (Empty);
+    rpc SendAddedToTeam (ToTeam) returns (Empty);
 }
 
 message GetDataForm {
     string email = 1;
     string eventName = 2;
+}
+
+message ToTeam {
+    string email = 1;
+    string team = 2;
+    string eventName = 3;
 }
 
 message Empty {}
