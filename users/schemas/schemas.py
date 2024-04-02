@@ -18,7 +18,8 @@ class CreateUser(BaseModel):
     tg_username: str
     is_admin: bool = Field(default=False)
     role: Optional[str] = None
-    tags: list[str] = []
+    langs: Optional[list[str]] = []
+    tags: Optional[list[str]] = []
 
 
 class GetUser(BaseModel):
@@ -30,8 +31,9 @@ class GetUser(BaseModel):
     photo: Optional[str] = None
     tg_username: str
     is_admin: bool
-    role: Optional[str]
-    tags: list[str] = []
+    role: Optional[str] = None
+    langs: Optional[list[str]] = []
+    tags: Optional[list[str]] = []
 
 
 class UpdateUser(BaseModel):
@@ -41,4 +43,5 @@ class UpdateUser(BaseModel):
     photo: Optional[str] = None
     role: Optional[str] = None
     tg_username: Optional[str] = None
+    langs: Optional[list[str]] = None
     tags: Optional[list[str]] = None

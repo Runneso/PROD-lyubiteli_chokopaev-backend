@@ -1,10 +1,20 @@
+from contextlib import asynccontextmanager
+
 import uvicorn
 from fastapi import FastAPI
 
 from routes import router
+from database import CRUD, get_postgres_sessionmaker
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with get_postgres_sessionmaker()() as postgres:
+        await CRUD.on_startup(postgres)
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 app.include_router(

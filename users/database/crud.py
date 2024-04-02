@@ -20,6 +20,22 @@ cache: Cache = config.app.cache
 
 class CRUD:
     @classmethod
+    async def on_startup(cls, postgres: AsyncSession) -> None:
+        admin = CreateUser(
+            name=config.app.admin_name,
+            surname=config.app.admin_surname,
+            patronymic=config.app.admin_patronymic,
+            email=config.app.admin_email,
+            password=config.app.admin_password,
+            tg_username=config.app.admin_tg_username,
+            is_admin=True,
+        )
+        try:
+            await cls.create_user_db(admin, postgres)
+        except:
+            pass
+
+    @classmethod
     async def auth(cls, token: str, postgres: AsyncSession) -> dict[str, str]:
         try:
             jwt = Jwt(token)
@@ -46,7 +62,6 @@ class CRUD:
 
     @classmethod
     async def create_user_db(cls, data: CreateUser, postgres: AsyncSession) -> str:
-        tags = data.__dict__.pop("tags")
         data.__dict__["hashed_password"] = generate_password_hash(data.password)
         del data.password
 
@@ -63,16 +78,11 @@ class CRUD:
         await cache.delete(f"user-{created_user.id}")
         await cache.delete(f"user-{created_user.tg_username}-tg")
 
-        for tag in tags:
-            postgres.add(Tag(user_id=created_user.id, tag=tag))
-
         claims = {
             "id": created_user.id,
             "exp": dt.now() + timedelta(days=30),
         }
         jwt = str(Jwt.sign(claims, key=config.app.private_key, alg="ES256"))
-        await postgres.commit()
-
         return jwt
 
     @classmethod
@@ -131,23 +141,6 @@ class CRUD:
         data_dict = data.model_dump()
         user_id = user["id"]
         tg_user = user["tg_username"]
-        tags = data_dict.get("tags")
-
-        if tags:
-            del data_dict["tags"]
-            user_tags = [tag.tag for tag in (await postgres.execute(
-                select(Tag).filter(Tag.user_id == user["id"])
-            )).scalars().all()]
-
-            for tag in tags:
-                if tag not in user_tags:
-                    postgres.add(Tag(user_id=user["id"], tag=tag))
-
-            for tag in user_tags:
-                if tag not in tags:
-                    await postgres.execute(delete(Tag).filter(Tag.user_id == user["id"], Tag.tag == tag))
-
-            await postgres.commit()
 
         updated_items = {
             key: value for key, value in data_dict.items() if value is not None
@@ -166,8 +159,6 @@ class CRUD:
             await cache.delete(f"user-{tg_user}-tg")
 
         result = await postgres.get(User, user_id)
-        tags = [tag.tag for tag in (await postgres.execute(select(Tag).filter(Tag.user_id == result.id))).scalars().all()]
-        result.__dict__["tags"] = tags
         return result
 
     @classmethod

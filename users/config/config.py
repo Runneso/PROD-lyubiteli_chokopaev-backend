@@ -10,6 +10,13 @@ __all__ = ["Config", "load_config"]
 
 @dataclass
 class AppConfig:
+    admin_name: str
+    admin_surname: str
+    admin_patronymic: str
+    admin_email: str
+    admin_password: str
+    admin_tg_username: str
+
     cache: Cache
     public_key: Jwk
     private_key: Jwk
@@ -53,6 +60,12 @@ def load_config() -> Config:
 
     return Config(
         app=AppConfig(
+            admin_name=env("ADMIN_NAME"),
+            admin_surname=env("ADMIN_SURNAME"),
+            admin_patronymic=env("ADMIN_PATRONYMIC"),
+            admin_email=env("ADMIN_EMAIL"),
+            admin_password=env("ADMIN_PASSWORD"),
+            admin_tg_username=env("ADMIN_TG_USERNAME"),
             cache=cache,
             public_key=Jwk.from_json(env("PUBLIC_KEY")),
             private_key=Jwk.from_json(env("PRIVATE_KEY")),

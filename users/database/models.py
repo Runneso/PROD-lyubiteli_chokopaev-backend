@@ -1,6 +1,5 @@
-from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, VARCHAR, BigInteger, ForeignKey, Boolean
+from sqlalchemy import Column, VARCHAR, BigInteger, ARRAY, Boolean
 
 
 Base = declarative_base()
@@ -19,7 +18,8 @@ class User(Base):
     tg_username = Column(VARCHAR, nullable=False, unique=True)
     is_admin = Column(Boolean)
     role = Column(VARCHAR)
-    tag = relationship("Tag", back_populates="user")
+    langs = Column(ARRAY(VARCHAR), default=[])
+    tags = Column(ARRAY(VARCHAR), default=[])
 
     def __str__(self) -> str:
         return f"<User: {self.id}>"
@@ -31,18 +31,3 @@ class User(Base):
 
         d = {key: getattr(self, key) for key in self.__mapper__.c.keys()}
         return d
-
-
-class Tag(Base):
-    __tablename__ = "tags"
-
-    id = Column(BigInteger, unique=True, primary_key=True)
-    user_id = Column(
-        ForeignKey(User.id, ondelete="CASCADE"),
-        nullable=False,
-    )
-    tag = Column(VARCHAR, nullable=False)
-    user = relationship("User", back_populates="tag")
-
-    def __str__(self) -> str:
-        return f"<Tag: {self.tag}, User: {self.user_id}>"

@@ -384,11 +384,33 @@
                         ],
                         "title": "Role"
                     },
+                    "langs": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Langs",
+                        "default": []
+                    },
                     "tags": {
-                        "items": {
-                            "type": "string"
-                        },
-                        "type": "array",
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Tags",
                         "default": []
                     }
@@ -463,11 +485,33 @@
                         ],
                         "title": "Role"
                     },
+                    "langs": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Langs",
+                        "default": []
+                    },
                     "tags": {
-                        "items": {
-                            "type": "string"
-                        },
-                        "type": "array",
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Tags",
                         "default": []
                     }
@@ -479,8 +523,7 @@
                     "surname",
                     "email",
                     "tg_username",
-                    "is_admin",
-                    "role"
+                    "is_admin"
                 ],
                 "title": "GetUser"
             },
@@ -582,6 +625,20 @@
                             }
                         ],
                         "title": "Tg Username"
+                    },
+                    "langs": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Langs"
                     },
                     "tags": {
                         "anyOf": [

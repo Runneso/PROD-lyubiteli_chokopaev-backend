@@ -4,8 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, status, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from database.crud import CRUD
-from database import get_async_session
+from database import CRUD, get_async_session
 from schemas import *
 
 

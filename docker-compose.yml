@@ -1,6 +1,7 @@
 version: '3.9'
 
 volumes:
+  files:
   users_pgdata:
   users_redis:
   events_pgdata:
@@ -47,7 +48,7 @@ services:
     networks:
       - olymp_network
       - users_network
-    command: bash -c "alembic upgrade head & python main.py"
+    command: bash -c "alembic upgrade head && python main.py"
     container_name: users_olymp
 
   users_postgres:
@@ -188,6 +189,20 @@ services:
     networks:
       - olymp_network
     container_name: mail_olymp
+
+  file_manager:
+    build:
+      context: ./file_manager/
+    restart: always
+    expose:
+      - 8005:8000
+    env_file:
+      - ./docker/.env
+    networks:
+      - olymp_network
+    volumes:
+      - files:/file_manager/files
+    container_name: file_manager_olymp
 
   nginx:
     image: nginx:stable-alpine
