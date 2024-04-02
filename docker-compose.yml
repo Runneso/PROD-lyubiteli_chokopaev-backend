@@ -81,12 +81,61 @@ services:
       - users_redis:/data
     container_name: users_redis_olymp
 
+  teams:
+      build:
+        context: ./teams/
+      restart: always
+      expose:
+        - 8002:8000
+      env_file:
+        - ./docker/.env
+      environment:
+        - POSTGRES_DB=teams
+      depends_on:
+        - teams_postgres
+        - teams_redis
+      networks:
+        - olymp_network
+        - teams_network
+      command: bash -c "python main.py"
+      container_name: teams_olymp
+
+    teams_postgres:
+      image: postgres:alpine
+      restart: always
+      hostname: postgres
+      env_file:
+        - ./docker/.env
+      environment:
+        - POSTGRES_DB=teams
+      networks:
+        - teams_network
+      volumes:
+        - teams_pgdata:/var/lib/postgresql/data/
+      container_name: teams_postgres_olymp
+
+    teams_redis:
+      image: redis:alpine
+      restart: always
+      hostname: redis
+      command:
+        - redis-server
+      expose:
+        - 6379
+      env_file:
+        - ./docker/.env
+      networks:
+        - teams_network
+      volumes:
+        - teams_redis:/data
+      container_name: teams_redis_olymp
+
   events:
     build:
       context: ./events/
     restart: always
     expose:
-      - 8002:80
+      - 8003:80
     env_file:
       - ./docker/.env
     environment:
@@ -128,55 +177,6 @@ services:
     volumes:
       - events_redis:/data
     container_name: events_redis_olymp
-
-  teams:
-    build:
-      context: ./teams/
-    restart: always
-    expose:
-      - 8003:8000
-    env_file:
-      - ./docker/.env
-    environment:
-      - POSTGRES_DB=teams
-    depends_on:
-      - teams_postgres
-      - teams_redis
-    networks:
-      - olymp_network
-      - teams_network
-    command: bash -c "python main.py"
-    container_name: teams_olymp
-
-  teams_postgres:
-    image: postgres:alpine
-    restart: always
-    hostname: postgres
-    env_file:
-      - ./docker/.env
-    environment:
-      - POSTGRES_DB=teams
-    networks:
-      - teams_network
-    volumes:
-      - teams_pgdata:/var/lib/postgresql/data/
-    container_name: teams_postgres_olymp
-
-  teams_redis:
-    image: redis:alpine
-    restart: always
-    hostname: redis
-    command:
-      - redis-server
-    expose:
-      - 6379
-    env_file:
-      - ./docker/.env
-    networks:
-      - teams_network
-    volumes:
-      - teams_redis:/data
-    container_name: teams_redis_olymp
 
   mail:
     build:
