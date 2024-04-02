@@ -1,48 +1,114 @@
+using System.Diagnostics;
+using Gateway.Internal.Dto;
 using Gateway.Internal.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gateway.Internal.Controllers 
 {
     [ApiController]
-    [Route("api/users")]
+    [Route("api/v1/users")]
     public class UsersController : Controller 
     {
 
-        private IUsersService _usersService;
+        private readonly IUsersService _usersService;
 
         public UsersController(IUsersService usersService) 
         {
             _usersService = usersService;
         }
 
-        [HttpGet("myprofile")]
-        public IActionResult GetMyProfile() 
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetMyProfile([FromHeader(Name = "Authorization")] string token) 
         {
-            return new OkResult();
+            try 
+            {
+                var result = await _usersService.GetProfile(token);
+
+                return new JsonResult(result);
+            }
+            catch (Exception ex) 
+            {
+                if (ex.Message == "401")
+                    return new UnauthorizedResult();
+                else if (ex.Message == "404")
+                    return new NotFoundResult();
+                else if (ex.Message == "409")
+                    return new ConflictResult();
+                else if (ex.Message == "422") 
+                    return new StatusCodeResult(422);
+                else
+                    return new StatusCodeResult(500);
+            }
         }
 
         [HttpGet("profile/{id}")]
-        public IActionResult GetUserProfile() 
+        public async  Task<IActionResult> GetUserProfile(int id, [FromHeader(Name = "Authorization")] string token) 
         {
-            return new OkResult();
+            try 
+            {
+                var result = await _usersService.GetProfileById(id, token);
+
+                return new JsonResult(result);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "401") 
+                    return new UnauthorizedResult();
+                else if (ex.Message == "404")
+                    return new NotFoundResult();
+                else if (ex.Message == "422")
+                    return new StatusCodeResult(422);
+                else
+                    return new StatusCodeResult(500);
+            } 
         }
 
-        [HttpPost("auth/login")]
-        public IActionResult Login() 
+        [HttpPatch("profile/update")]
+        public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileDto dto, [FromHeader(Name = "Authorization")] string token) 
         {
-            return new OkResult();
+            try 
+            {
+                var result = await _usersService.UpdateUser(dto, token);
+
+                return new JsonResult(result); 
+            }
+            catch (Exception ex) 
+            {
+                if (ex.Message == "401")
+                    return new UnauthorizedResult();
+                else if (ex.Message == "404")
+                    return new NotFoundResult();
+                else if (ex.Message == "409")
+                    return new ConflictResult();
+                else if (ex.Message == "422") 
+                    return new StatusCodeResult(422);
+                else
+                    return new StatusCodeResult(500);
+            }
         }
 
-        [HttpPost("auth/logout")]
-        public IActionResult Logout() 
+        [HttpDelete("profile/delete")]
+        public async Task<IActionResult> DeleteProfile([FromHeader(Name = "Authorization")] string token) 
         {
-            return new OkResult();
-        }
+            try 
+            {
+                await _usersService.DeleteUser(token);
 
-        [HttpPost("registration")]
-        public IActionResult UsersRegistration() 
-        {
-            return new OkResult();
+                return new StatusCodeResult(204);
+            }
+            catch (Exception ex) 
+            {
+                if (ex.Message == "401")
+                    return new UnauthorizedResult();
+                else if (ex.Message == "404")
+                    return new NotFoundResult();
+                else if (ex.Message == "409")
+                    return new ConflictResult();
+                else if (ex.Message == "422") 
+                    return new StatusCodeResult(422);
+                else
+                    return new StatusCodeResult(500);
+            }
         }
 
     }

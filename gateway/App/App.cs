@@ -10,20 +10,27 @@ namespace Gateway.App
 
             //Add controllers and swager gen.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
 
             builder.Services.AddEndpointsApiExplorer();
+
+            builder.Services.AddSwaggerGen();
 
 
             //Add all services.
 
             builder.Services.AddScoped<IUsersService, UsersService>();
 
+            builder.Services.AddScoped<IFilesService, FilessService>();
+
+            //Set port.
+
             var port = Environment.GetEnvironmentVariable("GATEWAY_PORT");
 
             port ??= "80";
 
             builder.WebHost.UseUrls($"http://+:{port}");
+
 
             //Setup logger.
 
@@ -47,7 +54,13 @@ namespace Gateway.App
         public static WebApplication SetupMiddleware(this WebApplication app)
         {
             app.MapControllers();
-            app.MapGet("ping", () => "ok");
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
             return app;
         }
 
