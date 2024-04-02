@@ -46,7 +46,7 @@ class CRUD:
 
                 if not user:
                     raise HTTPException(
-                        status.HTTP_404_NOT_FOUND, detail="User not found"
+                        status.HTTP_401_UNAUTHORIZED, detail="User not found"
                     )
                 return user.columns_to_dict()
             else:
@@ -87,7 +87,7 @@ class CRUD:
         ).scalar_one_or_none()
 
         if not user:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
         if check_password_hash(user.hashed_password, data.password):
             claims = {

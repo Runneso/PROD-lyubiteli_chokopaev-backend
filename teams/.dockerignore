@@ -1,5 +1,7 @@
 mypy_cache
 .vscode
 venv
+.env
+.dockerignore
 __pycache__
 Dockerfile
