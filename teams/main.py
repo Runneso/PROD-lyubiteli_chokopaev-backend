@@ -373,4 +373,4 @@ async def custom_exception_handler(request: Request, exc: CustomException):
 
 
 if __name__ == "__main__":
-    uvicorn.run(teams)
+    uvicorn.run(teams, host="0.0.0.0", port=80)

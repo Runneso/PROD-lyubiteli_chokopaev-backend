@@ -16,7 +16,7 @@ class User(Base):
     hashed_password = Column(VARCHAR, nullable=False)
     photo = Column(VARCHAR)
     tg_username = Column(VARCHAR, nullable=False, unique=True)
-    is_admin = Column(Boolean)
+    is_admin = Column(Boolean, default=False)
     role = Column(VARCHAR)
     langs = Column(ARRAY(VARCHAR), default=[])
     tags = Column(ARRAY(VARCHAR), default=[])

@@ -1,12 +1,11 @@
 from datetime import timedelta, datetime as dt
 
 from jwskate import Jwt
-from cashews import Cache, cache
 from fastapi import status, HTTPException
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete, func, and_
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select, update, delete
+from sqlalchemy.ext.asyncio import AsyncSession
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from config import Config, load_config
@@ -15,7 +14,6 @@ from .models import *
 
 
 config: Config = load_config()
-cache: Cache = config.app.cache
 
 
 class CRUD:
@@ -44,19 +42,17 @@ class CRUD:
                 jwt.verify_signature(config.app.public_key, alg="ES256")
                 and not jwt.is_expired()
             ):
-                cached = await cache.get(f"user-{jwt.id}")
-                if cached:
-                    return cached
-                else:
-                    user = await postgres.get(User, jwt.id)
+                user = await postgres.get(User, jwt.id)
 
-                    if not user:
-                        raise HTTPException(
-                            status.HTTP_404_NOT_FOUND, detail="User not found"
-                        )
-                    return user.columns_to_dict()
+                if not user:
+                    raise HTTPException(
+                        status.HTTP_404_NOT_FOUND, detail="User not found"
+                    )
+                return user.columns_to_dict()
             else:
-                raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Token is invalid")
+                raise HTTPException(
+                    status.HTTP_401_UNAUTHORIZED, detail="Token is invalid"
+                )
         except:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Token is invalid")
 
@@ -75,9 +71,6 @@ class CRUD:
         created_user = (
             await postgres.execute(select(User).filter(User.email == data.email))
         ).scalar_one_or_none()
-        await cache.delete(f"user-{created_user.id}")
-        await cache.delete(f"user-{created_user.tg_username}-tg")
-
         claims = {
             "id": created_user.id,
             "exp": dt.now() + timedelta(days=30),
@@ -110,29 +103,21 @@ class CRUD:
 
     @classmethod
     async def get_user_db(cls, user_id: int, postgres: AsyncSession) -> dict[str, str]:
-        cached = await cache.get(f"user-{user_id}")
-        if cached:
-            return cached
-        else:
-            user = await postgres.get(User, user_id)
-            if not user:
-                raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
-            await cache.set(f"user-{user_id}", user.columns_to_dict(), "90m")
-            return user.columns_to_dict()
+        user = await postgres.get(User, user_id)
+        if not user:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+        return user.columns_to_dict()
 
     @classmethod
-    async def get_user_by_tg_db(cls, tg_username: str, postgres: AsyncSession) -> dict[str, str]:
-        cached = await cache.get(f"user-{tg_username}-tg")
-        if cached:
-            return cached
-        else:
-            user = (
+    async def get_user_by_tg_db(
+        cls, tg_username: str, postgres: AsyncSession
+    ) -> dict[str, str]:
+        user = (
             await postgres.execute(select(User).filter(User.tg_username == tg_username))
         ).scalar_one_or_none()
 
         if not user:
             raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
-        await cache.set(f"user-{tg_username}-tg", user.columns_to_dict(), "90m")
         return user.columns_to_dict()
 
     @classmethod
@@ -140,7 +125,6 @@ class CRUD:
         user = await cls.auth(token, postgres)
         data_dict = data.model_dump()
         user_id = user["id"]
-        tg_user = user["tg_username"]
 
         updated_items = {
             key: value for key, value in data_dict.items() if value is not None
@@ -153,10 +137,10 @@ class CRUD:
                 )
                 await postgres.commit()
             except IntegrityError:
-                raise HTTPException(status.HTTP_409_CONFLICT, detail="User with this credentials already exists")
-
-            await cache.delete(f"user-{user_id}")
-            await cache.delete(f"user-{tg_user}-tg")
+                raise HTTPException(
+                    status.HTTP_409_CONFLICT,
+                    detail="User with this credentials already exists",
+                )
 
         result = await postgres.get(User, user_id)
         return result
@@ -165,7 +149,4 @@ class CRUD:
     async def delete_user_db(cls, token: str, postgres: AsyncSession):
         user = await cls.auth(token, postgres)
         await postgres.execute(delete(User).filter(User.id == user["id"]))
-        await cache.delete(f"user-{user["id"]}")
-        await cache.delete(f"user-{user["tg_username"]}-tg")
-        await cache.delete(f"user-{user["tg_username"]}-exists")
         await postgres.commit()

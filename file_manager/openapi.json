@@ -5,122 +5,18 @@
         "version": "0.1.0"
     },
     "paths": {
-        "/api/v1/files/users/upload_file": {
+        "/api/v1/files/upload_file": {
             "post": {
                 "tags": [
                     "files"
                 ],
-                "summary": "Upload User File",
-                "operationId": "upload_user_file_api_v1_files_users_upload_file_post",
-                "parameters": [
-                    {
-                        "name": "user_id",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "title": "User Id"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Body_upload_user_file_api_v1_files_users_upload_file_post"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/FileInfo"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/files/events/upload_file": {
-            "post": {
-                "tags": [
-                    "files"
-                ],
-                "summary": "Upload Event File",
-                "operationId": "upload_event_file_api_v1_files_events_upload_file_post",
-                "parameters": [
-                    {
-                        "name": "event_id",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "title": "Event Id"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Body_upload_event_file_api_v1_files_events_upload_file_post"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/FileInfo"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/files/admin/upload_file": {
-            "post": {
-                "tags": [
-                    "files"
-                ],
-                "summary": "Upload Admin File",
-                "operationId": "upload_admin_file_api_v1_files_admin_upload_file_post",
+                "summary": "Upload File",
+                "operationId": "upload_file_api_v1_files_upload_file_post",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/Body_upload_admin_file_api_v1_files_admin_upload_file_post"
+                                "$ref": "#/components/schemas/Body_upload_file_api_v1_files_upload_file_post"
                             }
                         }
                     },
@@ -153,7 +49,7 @@
     },
     "components": {
         "schemas": {
-            "Body_upload_admin_file_api_v1_files_admin_upload_file_post": {
+            "Body_upload_file_api_v1_files_upload_file_post": {
                 "properties": {
                     "upload_file": {
                         "type": "string",
@@ -165,42 +61,10 @@
                 "required": [
                     "upload_file"
                 ],
-                "title": "Body_upload_admin_file_api_v1_files_admin_upload_file_post"
-            },
-            "Body_upload_event_file_api_v1_files_events_upload_file_post": {
-                "properties": {
-                    "upload_file": {
-                        "type": "string",
-                        "format": "binary",
-                        "title": "Upload File"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "upload_file"
-                ],
-                "title": "Body_upload_event_file_api_v1_files_events_upload_file_post"
-            },
-            "Body_upload_user_file_api_v1_files_users_upload_file_post": {
-                "properties": {
-                    "upload_file": {
-                        "type": "string",
-                        "format": "binary",
-                        "title": "Upload File"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "upload_file"
-                ],
-                "title": "Body_upload_user_file_api_v1_files_users_upload_file_post"
+                "title": "Body_upload_file_api_v1_files_upload_file_post"
             },
             "FileInfo": {
                 "properties": {
-                    "name": {
-                        "type": "string",
-                        "title": "Name"
-                    },
                     "url": {
                         "type": "string",
                         "title": "Url"
@@ -208,7 +72,6 @@
                 },
                 "type": "object",
                 "required": [
-                    "name",
                     "url"
                 ],
                 "title": "FileInfo"

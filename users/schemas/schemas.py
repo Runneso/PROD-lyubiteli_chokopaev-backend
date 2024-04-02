@@ -13,10 +13,10 @@ class CreateUser(BaseModel):
     surname: str
     patronymic: Optional[str] = None
     email: EmailStr
-    password: str = Field(pattern=r"[A-Za-z0-9@#$%^&+=]{8,}")
+    password: str = Field(pattern=r".{8,}")
     photo: Optional[str] = None
     tg_username: str
-    is_admin: bool = Field(default=False)
+    is_admin: bool = False
     role: Optional[str] = None
     langs: Optional[list[str]] = []
     tags: Optional[list[str]] = []

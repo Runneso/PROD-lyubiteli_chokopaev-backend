@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 from jwskate import Jwk
 from environs import Env
-from cashews import Cache, cache
 
 
 __all__ = ["Config", "load_config"]
@@ -17,7 +16,6 @@ class AppConfig:
     admin_password: str
     admin_tg_username: str
 
-    cache: Cache
     public_key: Jwk
     private_key: Jwk
 
@@ -52,11 +50,6 @@ def load_config() -> Config:
 
     env: Env = Env()
     env.read_env()
-    redis_driver = env("REDIS_DRIVER")
-    redis_host = env("REDIS_HOST")
-    redis_port = env("REDIS_PORT")
-
-    cache.setup(f"{redis_driver}://{redis_host}:{redis_port}/1", client_side=True)
 
     return Config(
         app=AppConfig(
@@ -66,7 +59,6 @@ def load_config() -> Config:
             admin_email=env("ADMIN_EMAIL"),
             admin_password=env("ADMIN_PASSWORD"),
             admin_tg_username=env("ADMIN_TG_USERNAME"),
-            cache=cache,
             public_key=Jwk.from_json(env("PUBLIC_KEY")),
             private_key=Jwk.from_json(env("PRIVATE_KEY")),
         ),
