@@ -5,6 +5,7 @@ namespace Gateway.Internal.Interfaces
 {
     public interface IEventsService 
     {
-        public Task<List<EventDto>> GetEvents();
+        public Task UploadUsers(int id, UploadUsers dto, string token);
+        Task<StatisticDto> GetStat(int id);
     }
 }

@@ -1,0 +1,961 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Gateway",
+      "version": "1.0"
+    },
+    "paths": {
+      "/api/v1/users/auth/login": {
+        "post": {
+          "tags": [
+            "Auth"
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoignDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoignDto"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoignDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/users/auth/registration": {
+        "post": {
+          "tags": [
+            "Auth"
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "surname": {
+                      "type": "string"
+                    },
+                    "patronymic": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "password": {
+                      "type": "string"
+                    },
+                    "photoFile": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "tg_username": {
+                      "type": "string"
+                    },
+                    "is_admin": {
+                      "type": "boolean"
+                    },
+                    "role": {
+                      "type": "string"
+                    },
+                    "langs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "encoding": {
+                  "name": {
+                    "style": "form"
+                  },
+                  "surname": {
+                    "style": "form"
+                  },
+                  "patronymic": {
+                    "style": "form"
+                  },
+                  "email": {
+                    "style": "form"
+                  },
+                  "password": {
+                    "style": "form"
+                  },
+                  "photoFile": {
+                    "style": "form"
+                  },
+                  "tg_username": {
+                    "style": "form"
+                  },
+                  "is_admin": {
+                    "style": "form"
+                  },
+                  "role": {
+                    "style": "form"
+                  },
+                  "langs": {
+                    "style": "form"
+                  },
+                  "tags": {
+                    "style": "form"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/events": {
+        "get": {
+          "tags": [
+            "Events"
+          ],
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/ping": {
+        "get": {
+          "tags": [
+            "Gateway"
+          ],
+          "responses": {
+            "200": {
+              "description": "Success",
+              "content": {
+                "text/plain": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/teams/{id}": {
+        "get": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/all/{eventId}": {
+        "get": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/create": {
+        "post": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTeamDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTeamDto"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTeamDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/remove": {
+        "delete": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "team_id",
+              "in": "query",
+              "style": "form",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/update": {
+        "patch": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateTeamDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateTeamDto"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateTeamDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/tags/create": {
+        "post": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTagDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTagDto"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTagDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/tags/delete": {
+        "delete": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "team_id",
+              "in": "query",
+              "style": "form",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "tag",
+              "in": "query",
+              "style": "form",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/invites/create": {
+        "post": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateInviteDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateInviteDto"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateInviteDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/invites": {
+        "get": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetInviteDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetInviteDto"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetInviteDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/invites/answer": {
+        "post": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerInviteDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerInviteDto"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerInviteDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/all/possible/{eventId}": {
+        "get": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "eventId",
+              "in": "path",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "offset",
+              "in": "query",
+              "style": "form",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/my/{id}": {
+        "get": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/teams/from/{team_id}/delete/{userId}": {
+        "delete": {
+          "tags": [
+            "Teams"
+          ],
+          "parameters": [
+            {
+              "name": "team_id",
+              "in": "path",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "userId",
+              "in": "path",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/users/profile": {
+        "get": {
+          "tags": [
+            "Users"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/users/profile/{id}": {
+        "get": {
+          "tags": [
+            "Users"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "style": "simple",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/users/profile/update": {
+        "patch": {
+          "tags": [
+            "Users"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "surname": {
+                      "type": "string"
+                    },
+                    "patronymic": {
+                      "type": "string"
+                    },
+                    "photo": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "tg_username": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string"
+                    },
+                    "langs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "encoding": {
+                  "name": {
+                    "style": "form"
+                  },
+                  "surname": {
+                    "style": "form"
+                  },
+                  "patronymic": {
+                    "style": "form"
+                  },
+                  "photo": {
+                    "style": "form"
+                  },
+                  "tg_username": {
+                    "style": "form"
+                  },
+                  "role": {
+                    "style": "form"
+                  },
+                  "langs": {
+                    "style": "form"
+                  },
+                  "tags": {
+                    "style": "form"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      },
+      "/api/v1/users/profile/delete": {
+        "delete": {
+          "tags": [
+            "Users"
+          ],
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "style": "simple",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Success"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "AnswerInviteDto": {
+          "type": "object",
+          "properties": {
+            "invite_id": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "isAccepted": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "CreateInviteDto": {
+          "type": "object",
+          "properties": {
+            "team_id": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "user_id": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "from_team": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "CreateTagDto": {
+          "type": "object",
+          "properties": {
+            "team_id": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "tag": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "CreateTeamDto": {
+          "type": "object",
+          "properties": {
+            "event_id": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": {
+              "type": "string",
+              "nullable": true
+            },
+            "size": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": {
+              "type": "string",
+              "nullable": true
+            },
+            "need": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "GetInviteDto": {
+          "type": "object",
+          "properties": {
+            "event_id": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "additionalProperties": false
+        },
+        "LoignDto": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "nullable": true
+            },
+            "password": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "UpdateTeamDto": {
+          "type": "object",
+          "properties": {
+            "team_id": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": {
+              "type": "string",
+              "nullable": true
+            },
+            "size": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "description": {
+              "type": "string",
+              "nullable": true
+            },
+            "need": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  }
