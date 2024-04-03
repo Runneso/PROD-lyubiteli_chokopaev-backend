@@ -69,7 +69,7 @@ class CRUD:
 
         return result.scalars().all()
 
-    async def get_team(self, session: AsyncSession, team_id: int) -> Optional[Any]:
+    async def get_team(self, session: AsyncSession, team_id: int) -> Optional[Teams]:
         """
         Get team by id
         :param session:
@@ -81,7 +81,7 @@ class CRUD:
 
         return result.scalars().first()
 
-    async def get_team_by_name(self, session: AsyncSession, name: str) -> Optional[Any]:
+    async def get_team_by_name(self, session: AsyncSession, name: str) -> Optional[Teams]:
         """
         Get team by name
         :param session:
@@ -93,7 +93,7 @@ class CRUD:
 
         return result.scalars().first()
 
-    async def get_invite(self, session: AsyncSession, invite_id: int) -> Optional[Any]:
+    async def get_invite(self, session: AsyncSession, invite_id: int) -> Optional[TeamsInvites]:
         """
         Get invite by id
         :param session:
@@ -105,7 +105,7 @@ class CRUD:
 
         return result.scalars().first()
 
-    async def get_mirror_invite(self, session: AsyncSession, invite: TeamsInvites) -> Optional[Any]:
+    async def get_mirror_invite(self, session: AsyncSession, invite: TeamsInvites) -> Optional[TeamsInvites]:
         """
         Check mirror invite
         :param session:
@@ -130,7 +130,7 @@ class CRUD:
         sql_query = select(TeamsInvites).filter(TeamsInvites.user_id == user_id, TeamsInvites.from_team == True)
         result = await session.execute(sql_query)
         result = result.scalars().all()
-        result = [invite for invite in result if (await self.get_team(session, invite.team_id)) == event_id]
+        result = [invite for invite in result if (await self.get_team(session, invite.team_id)).event_id == event_id]
         return result
 
     async def get_author_invites(self, session: AsyncSession, team_id: int, event_id: int) -> List:
@@ -144,7 +144,15 @@ class CRUD:
         sql_query = select(TeamsInvites).filter(TeamsInvites.team_id == team_id, TeamsInvites.from_team == False)
         result = await session.execute(sql_query)
         result = result.scalars().all()
-        result = [invite for invite in result if (await self.get_team(session, invite.team_id)) == event_id]
+        result = [invite for invite in result if (await self.get_team(session, invite.team_id)).event_id == event_id]
+        return result
+
+    async def get_invite_by_data(self, session: AsyncSession, user_id: int, team_id: int, from_team: bool):
+        sql_query = select(TeamsInvites).filter(TeamsInvites.team_id == team_id,
+                                                TeamsInvites.user_id == user_id,
+                                                TeamsInvites.from_team == from_team)
+        result = await session.execute(sql_query)
+        result = result.scalars().all()
         return result
 
     async def create_invite(self, session: AsyncSession, invite: TeamsInvites) -> None:
@@ -237,6 +245,13 @@ class CRUD:
         await session.delete(team)
         await session.commit()
 
+    async def delete_member(self, session: AsyncSession, user_id: id, team_id: int):
+        sql_query = select(TeamsMembers).filter(TeamsMembers.user_id == user_id, TeamsMembers.team_id == team_id)
+        result = await session.execute(sql_query)
+        member = result.scalars().first()
+        await session.delete(member)
+        await session.commit()
+
     async def delete_team_tags(self, session: AsyncSession, team_id: int) -> None:
         """
         Team's tag deletion
@@ -254,10 +269,19 @@ class CRUD:
         :param session:
         :param team_id:
         """
-        team_members = await self.get_team_members(session, team_id)
-        for member in team_members:
-            await session.delete(member)
-            await session.commit()
+        team = (await self.get_team(session, team_id))
+
+        team_members = list(await self.get_team_members(session, team_id))
+        try:
+            members = team_members + [team.author_id]
+        except Exception as error:
+            members = team_members
+        for member in members:
+            try:
+                await session.delete(member)
+            except Exception as error:
+                continue
+        await session.commit()
 
     async def delete_tag(self, session: AsyncSession, team_id: int, tag: str) -> None:
         """

@@ -21,7 +21,4 @@ class UsersAPI:
                 if response.status != 200:
                     return None
                 json = await response.json()
-                return {
-                    "role": json["role"],
-                    "tags": json["tags"]
-                }
+                return json

@@ -5,6 +5,10 @@ from .pydantic_schemas import (Status,
                                UpdateTeam,
                                UpdateTag,
                                InviteTeam,
-                               PossibleTeam,
                                GetInvites,
-                               AnswerInvite)
+                               AnswerInvite,
+                               GetMyTeam,
+                               WithoutTeam,
+                               WithoutUsers,
+                               AutogenerateTeam,
+                               InviteTeamFull)

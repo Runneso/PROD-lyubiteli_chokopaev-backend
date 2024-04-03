@@ -53,9 +53,11 @@ class InviteTeam(BaseModel):
     from_team: bool
 
 
-class PossibleTeam(BaseModel):
+class InviteTeamFull(BaseModel):
+    id: int
+    team_id: int
     user_id: int
-    event_id: int
+    from_team: bool
 
 
 class GetInvites(BaseModel):
@@ -63,6 +65,27 @@ class GetInvites(BaseModel):
     event_id: int
 
 
+class WithoutTeam(BaseModel):
+    users: List[int]
+    event_id: int
+
+
+class WithoutUsers(BaseModel):
+    users: List[int]
+
+
+class GetMyTeam(BaseModel):
+    user_id: int
+    event_id: int
+
+
 class AnswerInvite(BaseModel):
     invite_id: int
     isAccepted: bool
+
+
+class AutogenerateTeam(BaseModel):
+    author_id: int
+    event_id: int
+    name: str
+    members: List[int]
