@@ -4,12 +4,14 @@ volumes:
   files:
   users_pgdata:
   events_pgdata:
+  leaderboard_pgdata:
   teams_pgdata:
 
 networks:
   olymp_network:
   users_network:
   events_network:
+  leaderboard_network:
   teams_network:
 
 
@@ -123,6 +125,38 @@ services:
     volumes:
       - events_pgdata:/var/lib/postgresql/data/
     container_name: events_postgres_olymp
+
+  leaderboard:
+      build:
+        context: ./leaderboard/
+      restart: always
+      expose:
+        - 80
+      env_file:
+        - ./docker/.env
+      environment:
+        - POSTGRES_DB=leaderboard
+      depends_on:
+        - leaderboard_postgres
+      networks:
+        - olymp_network
+        - leaderboard_network
+      command: bash -c "python main.py"
+      container_name: leaderboard_olymp
+
+  leaderboard_postgres:
+    image: postgres:alpine
+    restart: always
+    hostname: postgres
+    env_file:
+      - ./docker/.env
+    environment:
+      - POSTGRES_DB=leaderboard
+    networks:
+      - leaderboard_network
+    volumes:
+      - leaderboard_pgdata:/var/lib/postgresql/data/
+    container_name: leaderboard_postgres_olymp
 
   mail:
     build:

@@ -1,11 +1,7 @@
 mypy_cache
 .vscode
-.git
-.gitignore
 venv
+.env
+.dockerignore
 __pycache__
 Dockerfile
-*.md
-examples
-.github
-LICENSE

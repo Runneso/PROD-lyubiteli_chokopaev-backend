@@ -110,9 +110,10 @@ async def custom_exception_handler(request: Request, exc: CustomException):
     :param exc:
     :return:
     """
-    return JSONResponse(status_code=exc.status_code,
-                        content=jsonable_encoder(Status(status=exc.reason)))
+    return JSONResponse(
+        status_code=exc.status_code, content=jsonable_encoder(Status(status=exc.reason))
+    )
 
 
 if __name__ == "__main__":
-    uvicorn.run(leaderboard, port=8001)
+    uvicorn.run(leaderboard, host="0.0.0.0", port=80)
