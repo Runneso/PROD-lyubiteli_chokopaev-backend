@@ -13,5 +13,6 @@ namespace Events.Internal.Interafces
         Task<int> JoinToEvent(int eventId, JoinToEventDto dto);
         Task<int> AddOrganizer(int eventId, AddOganizerDto dto);
         Task<int> CreateTemplate(int eventId, CreateTemplateDto dto);
+        Task<List<int>> GetUsersByEvent(int eventId);
     }
 }

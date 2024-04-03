@@ -23,6 +23,10 @@ namespace Gateway.App
 
             builder.Services.AddScoped<IFilesService, FilessService>();
 
+            builder.Services.AddScoped<ITeamsService, TeamsService>();
+
+            builder.Services.AddScoped<IEventsService, EventsService>();
+
             //Set port.
 
             var port = Environment.GetEnvironmentVariable("GATEWAY_PORT");
@@ -60,6 +64,8 @@ namespace Gateway.App
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.MapGet("ping", () => "ok");
 
             return app;
         }

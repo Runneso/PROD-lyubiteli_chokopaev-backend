@@ -325,5 +325,24 @@ namespace Events.Internal.Services
 
             return result;
         }
+
+        public async Task<List<int>> GetUsersByEvent(int eventId)
+        {
+            var toCheck = await _eventsRepository.GetEventAsync(eventId);
+
+            if (toCheck == null)
+                throw new Exception("404");
+
+            var pairs = await _pairRepository.GetPairs(eventId);
+            var result = new List<int>();
+            foreach (var p in pairs) 
+            {
+                if (p.IsJoin) 
+                {
+                    result.Add((int)p.UserId);
+                }
+            }
+            return result;
+        }
     }
 }

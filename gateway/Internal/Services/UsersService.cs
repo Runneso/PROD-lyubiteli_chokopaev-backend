@@ -57,7 +57,6 @@ namespace Gateway.Internal.Services
             );
 
             var response = await client.PostAsync($"{url}/api/v1/users/create_user", toCreate);
-            Console.WriteLine(response.StatusCode.ToString());
             var result = new TokenResult();
             if (response.StatusCode.ToString() == "Created") 
             {
@@ -68,6 +67,10 @@ namespace Gateway.Internal.Services
             else if (response.StatusCode.ToString() == "Conflict")
             {
                 throw new Exception("409");
+            }
+            else if (response.StatusCode.ToString() == "NotFound")
+            {
+                throw new Exception("404");
             }
             else if (response.StatusCode.ToString() == "UnprocessableEntity") 
             {
@@ -144,6 +147,7 @@ namespace Gateway.Internal.Services
 
             var client = new HttpClient();
             var response = await client.GetAsync($"{url}/api/v1/users/get_user/{id}");
+            Console.WriteLine(response.StatusCode.ToString());
             if (response.StatusCode.ToString() == "NotFound") 
                 throw new Exception("404");
             else if (response.StatusCode.ToString() == "UnprocessableEntity")

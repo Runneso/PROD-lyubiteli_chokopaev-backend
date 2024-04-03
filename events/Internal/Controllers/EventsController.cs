@@ -34,6 +34,24 @@ namespace Events.Internal.Controllers
             }
         }
 
+        [HttpGet("{id}/users")]
+        public async Task<IActionResult> GetUsersOfEvent(int id) 
+        {
+            try 
+            {
+                var result = await _eventsService.GetUsersByEvent(id);
+
+                return new JsonResult(result);
+            }
+            catch (Exception ex) 
+            {
+                if (ex.Message == "404")
+                    return new NotFoundResult();
+                return new StatusCodeResult(500);
+                
+            }
+        }
+
         [HttpPatch("{id}/addRes")]
         public async Task<IActionResult> UploadResults(int id, [FromBody] UploadResultsDto dto) 
         {

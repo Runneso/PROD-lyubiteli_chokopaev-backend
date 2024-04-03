@@ -54,6 +54,8 @@ namespace Gateway.Internal.Controllers
                     return new ConflictResult();
                 else if (ex.Message == "422")
                     return new StatusCodeResult(422);
+                else if (ex.Message == "404")
+                    return new NotFoundResult(); 
                 return new StatusCodeResult(500);
             }
         }
