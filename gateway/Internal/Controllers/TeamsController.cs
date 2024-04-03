@@ -235,10 +235,133 @@ namespace Gateway.Internal.Controllers
             }
             catch (Exception ex) 
             {
-                return new StatusCodeResult(500); 
+                if (ex.Message == "401")
+                    return new UnauthorizedResult();
+                else if (ex.Message == "404")
+                    return new NotFoundResult();
+                else if (ex.Message == "409")
+                    return new ConflictResult();
+                else if (ex.Message == "422") 
+                    return new StatusCodeResult(422);
+                else if (ex.Message == "403")
+                    return new StatusCodeResult(403);
+                else if (ex.Message == "415")
+                    return new StatusCodeResult(415);
+                else
+                    return new StatusCodeResult(500);
             }
         }
 
+        [HttpPost("invites/answer")]
+        public async Task<IActionResult> AnswerInvite([FromBody] AnswerInviteDto dto, [FromHeader(Name = "Authorization")] string token) 
+        {
+            try 
+            {
+                await _teamsService.AnswerInvite(dto, token);
 
+                return new OkResult();
+            }
+            catch (Exception ex)  
+            {
+                if (ex.Message == "401")
+                    return new UnauthorizedResult();
+                else if (ex.Message == "404")
+                    return new NotFoundResult();
+                else if (ex.Message == "409")
+                    return new ConflictResult();
+                else if (ex.Message == "422") 
+                    return new StatusCodeResult(422);
+                else if (ex.Message == "403")
+                    return new StatusCodeResult(403);
+                else if (ex.Message == "415")
+                    return new StatusCodeResult(415);
+                else
+                    return new StatusCodeResult(500);
+            }
+        }
+
+        [HttpGet("all/possible/{eventId}")]
+        public async Task<IActionResult> GetPossible(int eventId, [FromQuery] int offset, [FromHeader(Name = "Authorization")] string token) 
+        {
+            try 
+            {
+                var res = await _teamsService.GetPossible(eventId, offset, token);
+
+                return new JsonResult(res);
+            }
+            catch (Exception ex) 
+            {
+                if (ex.Message == "401")
+                    return new UnauthorizedResult();
+                else if (ex.Message == "404")
+                    return new NotFoundResult();
+                else if (ex.Message == "409")
+                    return new ConflictResult();
+                else if (ex.Message == "422") 
+                    return new StatusCodeResult(422);
+                else if (ex.Message == "403")
+                    return new StatusCodeResult(403);
+                else if (ex.Message == "415")
+                    return new StatusCodeResult(415);
+                else
+                    return new StatusCodeResult(500);
+            }
+        }
+
+        [HttpGet("my/{id}")]
+        public async Task<IActionResult> GetMy(int id, [FromHeader(Name = "Authorization")] string token) 
+        {
+            try 
+            {
+                var res = await _teamsService.My(id, token);
+
+                return new JsonResult(res);
+            }
+            catch (Exception ex) 
+            {
+                if (ex.Message == "401")
+                    return new UnauthorizedResult();
+                else if (ex.Message == "404")
+                    return new NotFoundResult();
+                else if (ex.Message == "409")
+                    return new ConflictResult();
+                else if (ex.Message == "422") 
+                    return new StatusCodeResult(422);
+                else if (ex.Message == "403")
+                    return new StatusCodeResult(403);
+                else if (ex.Message == "415")
+                    return new StatusCodeResult(415);
+                else
+                    return new StatusCodeResult(500);
+            }
+        }
+
+        [HttpDelete("from/{team_id}/delete/{userId}")]
+        public async Task<IActionResult> RmFrom(int team_id, int userId, [FromHeader(Name = "Authorization")] string token) 
+        {
+            try 
+            {
+                await _teamsService.DeleteUser(team_id, userId, token);
+
+                return new StatusCodeResult(204);
+            }
+            catch (Exception ex) 
+            {
+                if (ex.Message == "401")
+                    return new UnauthorizedResult();
+                else if (ex.Message == "404")
+                    return new NotFoundResult();
+                else if (ex.Message == "409")
+                    return new ConflictResult();
+                else if (ex.Message == "422") 
+                    return new StatusCodeResult(422);
+                else if (ex.Message == "403")
+                    return new StatusCodeResult(403);
+                else if (ex.Message == "415")
+                    return new StatusCodeResult(415);
+                else
+                    return new StatusCodeResult(500);
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using Gateway.Internal.Dto;
 using Gateway.Internal.Interfaces;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gateway.Internal.Services 
@@ -107,37 +108,37 @@ namespace Gateway.Internal.Services
             var team = await response.Content.ReadFromJsonAsync<TeamResponse>();
 
             var members = new List<ProfileDto>();
-                foreach (var user in team.members) 
+            foreach (var user in team.members) 
+            {
+                ProfileDto member = new ProfileDto();
+                try 
                 {
-                    ProfileDto member = new ProfileDto();
-                    try 
-                    {
-                        member = await _usersService.GetProfileById(user, token);
-                    }
-                    catch (Exception ex) 
-                    {
-                        if (ex.Message == "404") 
-                        {
-                            await client.DeleteAsync($"{url}/api/v1/deleteMember?team_id={team.id}&user_id={user}");
-                            continue;
-                        }
-                    }
-                    members.Add(member);
+                    member = await _usersService.GetProfileById(user, token);
                 }
-                TeamDto result = new TeamDto
+                catch (Exception ex) 
                 {
-                    id = team.id,
-                    author_id = team.author_id,
-                    event_id = team.event_id,
-                    name = team.name,
-                    size = team.size,
-                    description = team.description,
-                    need = team.need,
-                    tags = team.tags,
-                    members = members
-                };
+                    if (ex.Message == "404") 
+                    {
+                        await client.DeleteAsync($"{url}/api/v1/deleteMember?team_id={team.id}&user_id={user}");
+                        continue;
+                    }
+                }
+                members.Add(member);
+            }
+            TeamDto result = new TeamDto
+            {
+                id = team.id,
+                author_id = team.author_id,
+                event_id = team.event_id,
+                name = team.name,
+                size = team.size,
+                description = team.description,
+                need = team.need,
+                tags = team.tags,
+                members = members
+            };
 
-                return result;
+            return result;
         }
 
         public async Task CreateTeam(CreateTeamDto dto, string token) 
@@ -355,6 +356,165 @@ namespace Gateway.Internal.Services
             var invites = await response.Content.ReadFromJsonAsync<List<InviteDto>>();
 
             return invites; 
+        }
+
+        public async Task AnswerInvite(AnswerInviteDto dto, string token)
+        {
+            try 
+            {
+                await _usersService.GetProfile(token);
+            }
+            catch (Exception ex) 
+            {
+                throw new Exception(ex.Message);
+            }
+            using StringContent json =  new (
+                JsonSerializer.Serialize(dto),
+                Encoding.UTF8,
+                "application/json"
+            );
+            var client = new HttpClient();
+            var response = await client.PostAsync($"{url}/api/v1/answerInvite", json);
+            if (response.StatusCode.ToString() != "OK") 
+            {
+                throw new Exception("500");
+            }
+        }
+
+        public async Task<List<TeamDto>> GetPossible(int eventId, int offset, string token)
+        {
+            ProfileDto me = new ProfileDto(); 
+            try 
+            {
+                me = await _usersService.GetProfile(token);
+            }
+            catch (Exception ex) 
+            {
+                throw new Exception(ex.Message);
+            }
+            var client = new HttpClient();
+            var response = await client.GetAsync($"{url}/api/v1/possibleTeams?event_id={eventId}&user_id={me.id}&offset={offset}");
+            if (response.StatusCode.ToString() != "OK") 
+            {
+                throw new Exception("500");
+            }
+            var teams = await response.Content.ReadFromJsonAsync<List<TeamResponse>>();
+            var result = new List<TeamDto>();
+            foreach(var team in teams) 
+            {
+                var members = new List<ProfileDto>();
+                foreach (var user in team.members) 
+                {
+                    ProfileDto member = new ProfileDto();
+                    try 
+                    {
+                        member = await _usersService.GetProfileById(user, token);
+                    }
+                    catch (Exception ex) 
+                    {
+                        if (ex.Message == "404") 
+                        {
+                            await client.DeleteAsync($"{url}/api/v1/deleteMember?team_id={team.id}&user_id={user}");
+                            continue;
+                        }
+                    }
+                    members.Add(member);
+                }
+                TeamDto r = new TeamDto
+                {
+                    id = team.id,
+                    author_id = team.author_id,
+                    event_id = team.event_id,
+                    name = team.name,
+                    size = team.size,
+                    description = team.description,
+                    need = team.need,
+                    tags = team.tags,
+                    members = members
+                };
+                result.Add(r);
+            }
+            return result;
+        }
+
+        public async Task<TeamDto> My(int event_id, string token)
+        {
+            ProfileDto me = new ProfileDto(); 
+            try 
+            {
+                me = await _usersService.GetProfile(token);
+            }
+            catch (Exception ex) 
+            {
+                throw new Exception(ex.Message);
+            }
+            using StringContent json =  new (
+                JsonSerializer.Serialize(new 
+                {
+                    user_id = me.id,
+                    event_id = event_id
+                }),
+                Encoding.UTF8,
+                "application/json"
+            );
+            var client = new HttpClient();
+            var response = await client.PostAsync($"{url}/api/v1/myTeam", json);
+            if (response.StatusCode.ToString() != "OK") 
+            {
+                throw new Exception("500");
+            }
+            var team = await response.Content.ReadFromJsonAsync<TeamResponse>();
+
+            var members = new List<ProfileDto>();
+            foreach (var user in team.members) 
+            {
+                ProfileDto member = new ProfileDto();
+                try 
+                {
+                    member = await _usersService.GetProfileById(user, token);
+                }
+                catch (Exception ex) 
+                {
+                    if (ex.Message == "404") 
+                    {
+                        await client.DeleteAsync($"{url}/api/v1/deleteMember?team_id={team.id}&user_id={user}");
+                        continue;
+                    }
+                }
+                members.Add(member);
+            }
+            TeamDto result = new TeamDto
+            {
+                id = team.id,
+                author_id = team.author_id,
+                event_id = team.event_id,
+                name = team.name,
+                size = team.size,
+                description = team.description,
+                need = team.need,
+                tags = team.tags,
+                members = members
+            };
+
+            return result;
+        }
+
+        public async Task DeleteUser(int t, int u, string token)
+        {
+            try 
+            {
+                await _usersService.GetProfile(token);
+            }
+            catch (Exception ex) 
+            {
+                throw new Exception(ex.Message);
+            }
+            var client = new HttpClient();
+            var response = await client.DeleteAsync($"{url}/api/v1/deleteMember?team_id={t}&user_id={u}");
+            if (response.StatusCode.ToString() != "NoContent") 
+            {
+                throw new Exception("500");
+            }
         }
     }
 }
