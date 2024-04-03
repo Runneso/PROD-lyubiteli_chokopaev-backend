@@ -8,6 +8,7 @@
     "/api/v1/ping": {
       "get": {
         "summary": "Ping",
+        "description": "Ping handler\n:return:",
         "operationId": "ping_api_v1_ping_get",
         "responses": {
           "200": {
@@ -26,6 +27,7 @@
     "/api/v1/teams": {
       "get": {
         "summary": "Get Teams",
+        "description": "Handler for getting all teams\n:param session:\n:return:",
         "operationId": "get_teams_api_v1_teams_get",
         "responses": {
           "200": {
@@ -48,6 +50,7 @@
     "/api/v1/teams/{event_id}": {
       "get": {
         "summary": "Get Teams By Event",
+        "description": "Handler for getting teams by event\n:param event_id:\n:param session:\n:return:",
         "operationId": "get_teams_by_event_api_v1_teams__event_id__get",
         "parameters": [
           {
@@ -91,6 +94,7 @@
     "/api/v1/team/{team_id}": {
       "get": {
         "summary": "Get Team",
+        "description": "Handler for getting teams by id\n:param team_id:\n:param session:\n:return:",
         "operationId": "get_team_api_v1_team__team_id__get",
         "parameters": [
           {
@@ -138,6 +142,7 @@
     "/api/v1/create": {
       "post": {
         "summary": "Create Team",
+        "description": "Handler for creating teams\n:param create_data:\n:param session:",
         "operationId": "create_team_api_v1_create_post",
         "requestBody": {
           "content": {
@@ -174,17 +179,19 @@
     "/api/v1/remove": {
       "delete": {
         "summary": "Delete Team",
+        "description": "Handler for deleting team\n:param team_id:\n:param session:",
         "operationId": "delete_team_api_v1_remove_delete",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DeleteTeam"
-              }
+        "parameters": [
+          {
+            "name": "team_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Team Id"
             }
-          },
-          "required": true
-        },
+          }
+        ],
         "responses": {
           "204": {
             "description": "Successful Response"
@@ -205,6 +212,7 @@
     "/api/v1/update": {
       "patch": {
         "summary": "Update Team",
+        "description": "Handler for updating team\n:param update_data:\n:param session:",
         "operationId": "update_team_api_v1_update_patch",
         "requestBody": {
           "content": {
@@ -241,6 +249,7 @@
     "/api/v1/createTag": {
       "post": {
         "summary": "Add Tag",
+        "description": "Hanlder for adding tag to team\n:param tag_data:\n:param session:",
         "operationId": "add_tag_api_v1_createTag_post",
         "requestBody": {
           "content": {
@@ -277,6 +286,7 @@
     "/api/v1/deleteTag": {
       "delete": {
         "summary": "Delete Tag",
+        "description": "Handler for deleting tag from team\n:param tag_data:\n:param session:",
         "operationId": "delete_tag_api_v1_deleteTag_delete",
         "requestBody": {
           "content": {
@@ -308,6 +318,7 @@
     "/api/v1/createInvite": {
       "post": {
         "summary": "Send Invite",
+        "description": "Hanlder for sending invites\n:param invite_data:\n:param session:",
         "operationId": "send_invite_api_v1_createInvite_post",
         "requestBody": {
           "content": {
@@ -344,6 +355,7 @@
     "/api/v1/invites": {
       "get": {
         "summary": "Get Invites",
+        "description": "Handler for getting invites\n:param invite_data:\n:param session:\n:return:",
         "operationId": "get_invites_api_v1_invites_get",
         "requestBody": {
           "content": {
@@ -380,6 +392,7 @@
     "/api/v1/answerInvite": {
       "post": {
         "summary": "Answer Invite",
+        "description": "Handler for answering invites\n:param answer_data:\n:param session:\n:return:",
         "operationId": "answer_invite_api_v1_answerInvite_post",
         "requestBody": {
           "content": {
@@ -413,11 +426,30 @@
         }
       }
     },
-    "/api/v1/possibleTeams": {
+    "/api/v1/possibleMembers": {
       "get": {
-        "summary": "Get Possible Teams",
-        "operationId": "get_possible_teams_api_v1_possibleTeams_get",
+        "summary": "Get Possible Members",
+        "description": "Handler for getting possible members by team and event\n:param team_id:\n:param event_id:\n:param session:\n:param offset:",
+        "operationId": "get_possible_members_api_v1_possibleMembers_get",
         "parameters": [
+          {
+            "name": "team_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Team Id"
+            }
+          },
+          {
+            "name": "event_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Event Id"
+            }
+          },
           {
             "name": "offset",
             "in": "query",
@@ -436,18 +468,241 @@
             }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PossibleTeam"
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  },
+                  "title": "Response Get Possible Members Api V1 Possiblemembers Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
+        }
+      }
+    },
+    "/api/v1/possibleTeams": {
+      "get": {
+        "summary": "Get Possible Teams",
+        "description": "Hanlder for getting possible teams by user and event\n:param event_id:\n:param user_id:\n:param session:\n:param offset:\n:return:",
+        "operationId": "get_possible_teams_api_v1_possibleTeams_get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "event_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Event Id"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Team"
+                  },
+                  "title": "Response Get Possible Teams Api V1 Possibleteams Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/myTeam": {
+      "post": {
+        "summary": "Get My Team",
+        "description": "Handler for getting user's team by user_id and event_id\n:param user_data:\n:param session:\n:return:",
+        "operationId": "get_my_team_api_v1_myTeam_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetMyTeam"
+              }
+            }
+          },
+          "required": true
         },
         "responses": {
           "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Team"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deleteMember": {
+      "delete": {
+        "summary": "Delete Member",
+        "description": "Handler for deleting member by team_id and user_id\n:param team_id:\n:param user_id:\n:param session:",
+        "operationId": "delete_member_api_v1_deleteMember_delete",
+        "parameters": [
+          {
+            "name": "team_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Team Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/withoutTeam": {
+      "post": {
+        "summary": "Get Users Without Team",
+        "description": "Handler for getting users without team\n:param without_data:\n:param session:\n:return:",
+        "operationId": "get_users_without_team_api_v1_withoutTeam_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithoutTeam"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WithoutUsers"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/autogenerateTeam": {
+      "post": {
+        "summary": "Autogenerate Team",
+        "description": "Handler for getting autogeneration teams\n:param team_data:\n:param session:",
+        "operationId": "autogenerate_team_api_v1_autogenerateTeam_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AutogenerateTeam"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
             "description": "Successful Response",
             "content": {
               "application/json": {
@@ -488,6 +743,37 @@
           "isAccepted"
         ],
         "title": "AnswerInvite"
+      },
+      "AutogenerateTeam": {
+        "properties": {
+          "author_id": {
+            "type": "integer",
+            "title": "Author Id"
+          },
+          "event_id": {
+            "type": "integer",
+            "title": "Event Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "members": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Members"
+          }
+        },
+        "type": "object",
+        "required": [
+          "author_id",
+          "event_id",
+          "name",
+          "members"
+        ],
+        "title": "AutogenerateTeam"
       },
       "CreateTeam": {
         "properties": {
@@ -537,19 +823,6 @@
         ],
         "title": "CreateTeam"
       },
-      "DeleteTeam": {
-        "properties": {
-          "team_id": {
-            "type": "integer",
-            "title": "Team Id"
-          }
-        },
-        "type": "object",
-        "required": [
-          "team_id"
-        ],
-        "title": "DeleteTeam"
-      },
       "GetInvites": {
         "properties": {
           "user_id": {
@@ -567,6 +840,24 @@
           "event_id"
         ],
         "title": "GetInvites"
+      },
+      "GetMyTeam": {
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "title": "User Id"
+          },
+          "event_id": {
+            "type": "integer",
+            "title": "Event Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "event_id"
+        ],
+        "title": "GetMyTeam"
       },
       "HTTPValidationError": {
         "properties": {
@@ -603,24 +894,6 @@
           "from_team"
         ],
         "title": "InviteTeam"
-      },
-      "PossibleTeam": {
-        "properties": {
-          "user_id": {
-            "type": "integer",
-            "title": "User Id"
-          },
-          "event_id": {
-            "type": "integer",
-            "title": "Event Id"
-          }
-        },
-        "type": "object",
-        "required": [
-          "user_id",
-          "event_id"
-        ],
-        "title": "PossibleTeam"
       },
       "Status": {
         "properties": {
@@ -819,6 +1092,43 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "WithoutTeam": {
+        "properties": {
+          "users": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Users"
+          },
+          "event_id": {
+            "type": "integer",
+            "title": "Event Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "users",
+          "event_id"
+        ],
+        "title": "WithoutTeam"
+      },
+      "WithoutUsers": {
+        "properties": {
+          "users": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Users"
+          }
+        },
+        "type": "object",
+        "required": [
+          "users"
+        ],
+        "title": "WithoutUsers"
       }
     }
   }
